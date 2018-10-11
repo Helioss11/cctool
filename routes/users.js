@@ -13,7 +13,7 @@ var getUser = function(id, res, callback){
   res.locals.connection.query(`SELECT uu.id userId, uu.name, uu.lastname, uu.email, uu.username, 
   uu.gender, uu.age, uu.country_id, cc.country, uu.zorb_id, zz.zorb, 
   uu.rol_id, rr.rol, uu.status, uu.register_at, uu.last_update 
-  FROM user uu 
+  FROM users uu 
   INNER JOIN lu_contry_types cc on uu.country_id = cc.id
   INNER JOIN lu_zorb_types zz on uu.zorb_id = zz.id
   INNER JOIN lu_rol_types rr on uu.rol_id = rr.id
@@ -35,7 +35,7 @@ router.get('/', function(req, res, next) {
   res.locals.connection.query(`SELECT uu.id userId, uu.name, uu.lastname, uu.email, uu.username, 
   uu.gender, uu.age, uu.country_id, cc.country, uu.zorb_id, zz.zorb, 
   uu.rol_id, rr.rol, uu.status, uu.register_at, uu.last_update 
-  FROM user uu 
+  FROM users uu 
   INNER JOIN lu_contry_types cc on uu.country_id = cc.id
   INNER JOIN lu_zorb_types zz on uu.zorb_id = zz.id
   INNER JOIN lu_rol_types rr on uu.rol_id = rr.id`, function(error, results, fields){
@@ -71,7 +71,7 @@ router.post('/', function(req, res, next){
     let encPass = encryptPassword(req.body.password, req.body.email);
     req.body.password = encPass;
     
-    res.locals.connection.query('INSERT INTO user SET ?', req.body, function(error, result){
+    res.locals.connection.query('INSERT INTO users SET ?', req.body, function(error, result){
       if(error){
         res.json({"status": 500, "error": error, "response": null});
       }else{
@@ -107,7 +107,7 @@ router.put('/:id', function(req, res, next){
       update += ", zorb_id = " +    (typeof req.body.zorb_id != 'undefined' ?    res.locals.connection.escape(req.body.zorb_id) :    results[0].zorb_id);
       update += ", rol_id = " +     (typeof req.body.zorb_id != 'undefined' ?    res.locals.connection.escape(req.body.zorb_id) :    results[0].zorb_id);
 
-      res.locals.connection.query('UPDATE user SET ' + update + ' WHERE id = ' + req.params.id, function(error, result){
+      res.locals.connection.query('UPDATE users SET ' + update + ' WHERE id = ' + req.params.id, function(error, result){
 
         if(error){
           res.json({"status": 500, "error": error, "response": null});
