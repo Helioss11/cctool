@@ -26,8 +26,9 @@ app.use((req, res, next) => {
   res.locals.connection = mysql.createConnection({
     host: 'localhost',
     user: 'root',
-    pass: '',
-    database: 'cctool_db'
+    password: 'DyFn2PXQ5P',
+    database: 'cctool_db',
+    insecureAuth: true
   });
   next();
 });
