@@ -11,11 +11,10 @@ encryptPassword.pattern = /^\w{8,24}$/;
 var getUser = function(id, res, callback){
 
   res.locals.connection.query(`SELECT uu.id userId, uu.name, uu.lastname, uu.email, uu.username, 
-  uu.gender, uu.age, uu.country_id, cc.country, uu.zorb_id, zz.zorb, 
+  uu.gender, uu.age, uu.country_id, cc.country, uu.zorb, 
   uu.rol_id, rr.rol, uu.status, uu.register_at, uu.last_update 
   FROM users uu 
   INNER JOIN lu_contry_types cc on uu.country_id = cc.id
-  INNER JOIN lu_zorb_types zz on uu.zorb_id = zz.id
   INNER JOIN lu_rol_types rr on uu.rol_id = rr.id
   WHERE uu.id = ?`, id, function(error, results, fields){
 
@@ -33,11 +32,10 @@ var getUser = function(id, res, callback){
 router.get('/', function(req, res, next) {
 
   res.locals.connection.query(`SELECT uu.id userId, uu.name, uu.lastname, uu.email, uu.username, 
-  uu.gender, uu.age, uu.country_id, cc.country, uu.zorb_id, zz.zorb, 
+  uu.gender, uu.age, uu.country_id, cc.country, uu.zorb,
   uu.rol_id, rr.rol, uu.status, uu.register_at, uu.last_update 
   FROM users uu 
   INNER JOIN lu_contry_types cc on uu.country_id = cc.id
-  INNER JOIN lu_zorb_types zz on uu.zorb_id = zz.id
   INNER JOIN lu_rol_types rr on uu.rol_id = rr.id`, function(error, results, fields){
     if(error){
       res.json({"status": 500, "error": error, "response": null});
@@ -66,7 +64,7 @@ router.post('/', function(req, res, next){
   
   if(typeof req.body != 'undefined' && typeof req.body.email != 'undefined' && typeof req.body.username != 'undefined' && req.body.password != 'undefined' && 
   typeof req.body.gender != 'undefined' && (req.body.gender == 'm' || req.body.gender == 'f') && typeof req.body.age != 'undefined' && typeof req.body.country_id != 'undefined' && 
-  typeof req.body.zorb_id != 'undefined' && typeof req.body.rol_id != 'undefined'){
+  typeof req.body.zorb != 'undefined' && typeof req.body.rol_id != 'undefined'){
 
     let encPass = encryptPassword(req.body.password, req.body.email);
     req.body.password = encPass;
@@ -104,8 +102,8 @@ router.put('/:id', function(req, res, next){
       update += ", gender = " +     (typeof req.body.gender != 'undefined' ?     res.locals.connection.escape(req.body.gender) :     results[0].gender);
       update += ", age = " +        (typeof req.body.age != 'undefined' ?        res.locals.connection.escape(req.body.age) :        results[0].age);
       update += ", country_id = " + (typeof req.body.country_id != 'undefined' ? res.locals.connection.escape(req.body.country_id) : results[0].country_id);
-      update += ", zorb_id = " +    (typeof req.body.zorb_id != 'undefined' ?    res.locals.connection.escape(req.body.zorb_id) :    results[0].zorb_id);
-      update += ", rol_id = " +     (typeof req.body.zorb_id != 'undefined' ?    res.locals.connection.escape(req.body.zorb_id) :    results[0].zorb_id);
+      update += ", zorb = " +       (typeof req.body.zorb != 'undefined' ?       res.locals.connection.escape(req.body.zorb) :       results[0].zorb);
+      update += ", rol_id = " +     (typeof req.body.rol_id != 'undefined' ?     res.locals.connection.escape(req.body.rol_id) :     results[0].rol_id);
 
       res.locals.connection.query('UPDATE users SET ' + update + ' WHERE id = ' + req.params.id, function(error, result){
 

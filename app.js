@@ -8,6 +8,7 @@ var indexRouter = require('./routes/index');
 var usersRouter = require('./routes/users');
 var assetsRouter = require('./routes/assets');
 var lookupRouter = require('./routes/lookups');
+var courseRouter = require('./routes/course');
 
 var mysql = require("mysql");
 
@@ -27,7 +28,7 @@ app.use((req, res, next) => {
   res.locals.connection = mysql.createConnection({
     host: 'localhost',
     user: 'root',
-    password: 'DyFn2PXQ5P',
+    password: '',
     database: 'cctool_db',
     insecureAuth: true
   });
@@ -38,6 +39,7 @@ app.use('/', indexRouter);
 app.use('/api/v1/users', usersRouter);
 app.use('/api/v1/assets', assetsRouter);
 app.use('/api/v1/lookup', lookupRouter);
+app.use('/api/v1/course', courseRouter);
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
