@@ -9,6 +9,7 @@ var usersRouter = require('./routes/users');
 var assetsRouter = require('./routes/assets');
 var lookupRouter = require('./routes/lookups');
 var courseRouter = require('./routes/course');
+var comicRouter = require('./routes/comic')
 
 var mysql = require("mysql");
 
@@ -40,6 +41,7 @@ app.use('/api/v1/users', usersRouter);
 app.use('/api/v1/assets', assetsRouter);
 app.use('/api/v1/lookup', lookupRouter);
 app.use('/api/v1/course', courseRouter);
+app.use('/api/v1/comic', comicRouter);
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {

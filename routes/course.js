@@ -52,7 +52,7 @@ router.get('/pin/:pin', function(req, res, next) {
 
 router.post('/', function(req, res, next){
 
-  if(typeof req.body != 'undefined' && typeof req.body.user_id != typeof req.body.name != 'undefined'){
+  if(typeof req.body != 'undefined' && typeof req.body.user_id != 'undefined' && typeof req.body.name != 'undefined'){
 
     let pin = calculaPin();
     req.body.pin = pin;

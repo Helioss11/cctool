@@ -121,4 +121,26 @@ router.put('/:id', function(req, res, next){
 
 });
 
+router.post('/comic', function(req, res, next){
+
+  if(typeof req.body != 'undefined' && typeof req.body.user_id != 'undefined'){
+
+    res.locals.connection.query('INSERT INTO user_comic SET ?', req.body, function(error, result){
+      if(error){
+        res.json({"status": 500, "error": error, "response": null});
+      }else{
+        req.body.userComicId = result.insertId;
+        result.comicData = req.body;
+        res.json({"status": 200, "error": null, "response": result});
+      }
+    });
+
+  }else{
+    res.json({"status": 500, "error": "incomplete parameters"});
+  }
+
+});
+
+// TODO GET comics por usuario, PUT para hacer update a un comic, DELETE para borrar un comic
+
 module.exports = router;
