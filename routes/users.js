@@ -2,6 +2,7 @@ var express = require('express');
 var router = express.Router();
 
 var encryptPassword = require('encrypt-password');
+var JWToken = require('./auth');
 
 encryptPassword.secret = 'NacmVJ5hNx';
 encryptPassword.min = 8;
@@ -66,7 +67,7 @@ router.post('/', function(req, res, next){
   typeof req.body.gender != 'undefined' && (req.body.gender == 'm' || req.body.gender == 'f') && typeof req.body.age != 'undefined' && typeof req.body.country_id != 'undefined' && 
   typeof req.body.zorb != 'undefined' && typeof req.body.rol_id != 'undefined'){
 
-    let encPass = encryptPassword(req.body.password, req.body.email);
+    let encPass = encryptPassword(req.body.password, req.body.username);
     req.body.password = encPass;
     
     res.locals.connection.query('INSERT INTO users SET ?', req.body, function(error, result){
@@ -76,6 +77,38 @@ router.post('/', function(req, res, next){
         req.body.userId = result.insertId;
         result.userData = req.body;
         res.json({"status": 200, "error": null, "response": result});
+      }
+    });
+
+  }else{
+    res.json({"status": 500, "error": "incomplete parameters"});
+  }
+
+});
+
+router.post('/auth/', function(req, res, next){
+
+  if(typeof req.body != 'undefined' && typeof req.body.username != 'undefined' && typeof req.body.password != 'undefined'){
+
+    let encPass = encryptPassword(req.body.password, req.body.username);
+
+    res.locals.connection.query(`SELECT * FROM users WHERE username = '${req.body.username}' AND password = '${encPass}'`, function(error, results, fields){
+      if(error){
+        res.json({"status": 500, "error": error, "response": null});
+      }else{
+        if(results.length > 0){
+
+          let token = JWToken.createJWToken({
+            sessionData: { "username": req.body.username },
+            maxAge: 3600
+          }, res);
+          
+          results[0].tokenData = token;
+          res.json({"status": 200, "error": null, "response": results[0]});
+
+        }else{
+          res.json({"status": 200, "error": null, "response": "bad username or password"});
+        }
       }
     });
 
@@ -121,6 +154,19 @@ router.put('/:id', function(req, res, next){
 
 });
 
+router.get('/comics/:id', function(req, res, next){
+
+  res.locals.connection.query(`SELECT id, user_id, title, code, file, course_id, in_gallery, status, register_at, last_update 
+  FROM user_comic WHERE user_id = ?`, req.params.id, function(error, result, fields){
+    if(error){
+      res.json({"status": 500, "error": error, "response": null});
+    }else{
+      res.json({"status": 200, "error": null, "response": result});
+    }
+  });
+
+});
+
 router.post('/comic', function(req, res, next){
 
   if(typeof req.body != 'undefined' && typeof req.body.user_id != 'undefined'){
@@ -140,7 +186,5 @@ router.post('/comic', function(req, res, next){
   }
 
 });
-
-// TODO GET comics por usuario, PUT para hacer update a un comic, DELETE para borrar un comic
 
 module.exports = router;
