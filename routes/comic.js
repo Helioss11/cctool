@@ -49,7 +49,7 @@ router.put('/', function(req, res, next){
         res.json({"status": 500, "error": error, "response": null});
       }else{
         if(results.length > 0){
-          res.locals.connection.query(`SELECT * FROM user_comic WHERE id = ?`, req.body.comic_id, function(error, result, fields){
+          res.locals.connection.query(`SELECT * FROM user_comic WHERE id = ${req.body.comic_id} AND user_id = ${req.body.user_id}`, function(error, result, fields){
             if(error){
               res.json({"status": 500, "error": error, "response": null});
             }else{
