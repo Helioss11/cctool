@@ -74,8 +74,8 @@ var refreshJWToken = function(req, res, details){
           if(error){
             return reject(error);
           }else{
-
-            if(results){
+            
+            if(results.length > 0){
               let token = jwt.sign({
                 data: { "username": details.username }
               }, secret, {
