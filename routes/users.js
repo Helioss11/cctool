@@ -175,7 +175,7 @@ router.post('/comic', function(req, res, next){
       if(error){
         res.json({"status": 500, "error": error, "response": null});
       }else{
-        req.body.userComicId = result.insertId;
+        req.body.comic_id = result.insertId;
         result.comicData = req.body;
         res.json({"status": 200, "error": null, "response": result});
       }

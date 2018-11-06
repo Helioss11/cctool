@@ -75,16 +75,20 @@ var refreshJWToken = function(req, res, details){
             return reject(error);
           }else{
 
-            let token = jwt.sign({
-              data: { "username": details.username }
-            }, secret, {
-              expiresIn: 3600,
-              algorithm: 'HS256'
-            });
-        
-            tokenList[details.refreshToken] = token;
-
-            resolve({"token": token, "refreshToken": details.refreshToken});
+            if(results){
+              let token = jwt.sign({
+                data: { "username": details.username }
+              }, secret, {
+                expiresIn: 3600,
+                algorithm: 'HS256'
+              });
+          
+              tokenList[details.refreshToken] = token;
+  
+              resolve({"token": token, "refreshToken": details.refreshToken});
+            }else{
+              return reject({error: "No session_tokens"});
+            }
 
           }
         });

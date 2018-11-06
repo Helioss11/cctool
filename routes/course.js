@@ -62,6 +62,7 @@ router.post('/', function(req, res, next){
       if(error){
         res.json({"status": 500, "error": error, "response": null});
       }else{
+        req.body.course_id = result.insertId;
         result.courseData = req.body;
         res.json({"status": 200, "error": null, "response": result});
       }
