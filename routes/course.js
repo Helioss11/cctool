@@ -56,6 +56,7 @@ router.post('/', function(req, res, next){
 
     let pin = calculaPin();
     req.body.pin = pin;
+    delete req.body.token;
 
     res.locals.connection.query('INSERT INTO course SET ?', req.body, function(error, result){
       if(error){
