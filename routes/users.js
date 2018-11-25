@@ -192,14 +192,22 @@ router.get('/comics/:id', function(req, res, next){
 router.post('/comic', function(req, res, next){
 
   if(typeof req.body != 'undefined' && typeof req.body.user_id != 'undefined'){
-    delete req.body.token;
-    res.locals.connection.query('INSERT INTO user_comic SET ?', req.body, function(error, result){
-      if(error){
-        res.json({"status": 500, "error": error, "response": null});
+    res.locals.connection.query(`SELECT id FROM user_comic WHERE user_id = '${req.body.user_id}' AND title = '${req.body.title}'`, function(error, result, fields){
+      if(result.length === 0){
+
+        delete req.body.token;
+        res.locals.connection.query('INSERT INTO user_comic SET ?', req.body, function(error, result){
+          if(error){
+            res.json({"status": 500, "error": error, "response": null});
+          }else{
+            req.body.comic_id = result.insertId;
+            result.comicData = req.body;
+            res.json({"status": 200, "error": null, "response": result});
+          }
+        });
+
       }else{
-        req.body.comic_id = result.insertId;
-        result.comicData = req.body;
-        res.json({"status": 200, "error": null, "response": result});
+        res.json({"status": 403, "error": "this comic title is already used"});
       }
     });
 
