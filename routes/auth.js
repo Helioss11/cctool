@@ -4,7 +4,7 @@ var _ = require('lodash');
 var secret = 'NacmVJ5hNx';
 var refreshSecret = 'j6vTKUyjBU';
 const tokenList = {};
-
+// TODO inválido o vencido
 var verifyJWTToken = function(token){
   return new Promise((resolve, reject) => {
     jwt.verify(token, secret, (err, decodedToken) => {
@@ -43,7 +43,7 @@ var createJWToken = function(details, res){
   let refreshToken = jwt.sign({
     data: details.sessionData
   }, refreshSecret, {
-    expiresIn: 86400
+    expiresIn: 2592000 // 30 días
   });
 
   var t = new Date();

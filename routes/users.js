@@ -86,6 +86,28 @@ router.post('/', function(req, res, next){
 
 });
 
+router.post('/username', function(req, res, next){
+
+  if(typeof req.body != 'undefined' && typeof req.body.username != 'undefined'){
+
+    res.locals.connection.query(`SELECT id, username FROM users WHERE username = '${req.body.username}'`, function(error, result, fields){
+      if(error){
+        res.json({"status": 500, "error": error, "response": null});
+      }else{
+        if(result.length > 0){
+          res.json({"status": 200, "error": null, "response": result});
+        }else{
+          res.json({"status": 404, "error": "username not found"});
+        }
+      }
+    });
+
+  }else{
+    res.json({"status": 500, "error": "incomplete parameters"});
+  }
+
+});
+
 router.post('/auth/', function(req, res, next){
 
   if(typeof req.body != 'undefined' && typeof req.body.username != 'undefined' && typeof req.body.password != 'undefined'){
@@ -100,14 +122,14 @@ router.post('/auth/', function(req, res, next){
 
           let token = JWToken.createJWToken({
             sessionData: { "username": req.body.username },
-            maxAge: 3600
+            maxAge: 43200 // TODO 12 HRS
           }, res);
           
           results[0].tokenData = token;
           res.json({"status": 200, "error": null, "response": results[0]});
 
         }else{
-          res.json({"status": 200, "error": null, "response": "bad username or password"});
+          res.json({"status": 403, "error": "bad username or password", "response": "bad username or password"});
         }
       }
     });
