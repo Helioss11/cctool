@@ -5,7 +5,8 @@ var JWToken = require('./auth');
 
 router.all('*', function(req, res, next){
   if( (req.method !== 'POST' && req.url === '/api/v1/users') || 
-    (req.url !== '/' && req.url !== '/api/v1/users/auth' && req.url !== '/token' && req.url !== '/api/v1/users' && req.url !== '/api/v1/assets' && req.url !== '/api/v1/users/username') ){
+    (req.url !== '/' && req.url !== '/api/v1/users/auth' && req.url !== '/token' && req.url !== '/api/v1/users' && req.url !== '/api/v1/assets' && 
+    req.url !== '/api/v1/users/username' && req.url !== '/api/v1/lookup/country' && req.url !== '/api/v1/lookup/category' && req.url !== '/api/v1/lookup/rol') ){
     let token = (req.method === 'POST' || req.method === 'PUT') ? req.body.token : req.query.token
     JWToken.verifyJWTToken(token).then((decodedToken) => {
       req.user = decodedToken.data
