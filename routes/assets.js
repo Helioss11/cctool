@@ -29,6 +29,7 @@ router.post('/', upload.single('image'), (req, res, next) => {
         res.json({"status": 500, "error": error, "response": null});
       }else{
         result.assetData = assetData;
+        result.fileData = req.file;
         res.json({"status": 200, "error": null, "response": result});
       }
     });
