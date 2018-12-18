@@ -50,6 +50,18 @@ router.get('/pin/:pin', function(req, res, next) {
     
 });
 
+router.get('/user/:user_id', function(req, res, next) {
+  
+  res.locals.connection.query(`SELECT * FROM course WHERE user_id = ?`, req.params.user_id, function(error, results, fields){
+    if(error){
+      res.json({"status": 500, "error": error, "response": null});
+    }else{
+      res.json({"status": 200, "error": null, "response": results});
+    }
+  });
+    
+});
+
 router.post('/', function(req, res, next){
 
   if(typeof req.body != 'undefined' && typeof req.body.user_id != 'undefined' && typeof req.body.name != 'undefined'){
@@ -73,5 +85,103 @@ router.post('/', function(req, res, next){
   }
 
 });
+
+router.post('/evaluation/', function(req, res, next){
+
+  if(typeof req.body != 'undefined' && typeof req.body.course_id != 'undefined' && 
+  typeof req.body.user_comic_id != 'undefined' &&
+  typeof req.body.icon != 'undefined' &&
+  typeof req.body.comments != 'undefined' &&
+  typeof req.body.stars != 'undefined'){
+
+    res.locals.connection.query(`SELECT * FROM course WHERE id = ?`, req.body.course_id, function(error, results, fields){
+      if(error){
+        res.json({"status": 500, "error": error, "response": null});
+      }else{
+        
+        if(results.length){
+          res.locals.connection.query(`SELECT * FROM user_comic WHERE id = ?`, req.body.user_comic_id, function(error, results, fields){
+            if(error){
+              res.json({"status": 500, "error": error, "response": null});
+            }else{
+              
+              if(results.length){
+
+                delete req.body.token;
+                res.locals.connection.query('INSERT INTO course_evaluation SET ?', req.body, function(error, result){
+                  if(error){
+                    res.json({"status": 500, "error": error, "response": null});
+                  }else{
+                    req.body.course_evaluation_id = result.insertId;
+                    result.courseEvaluationData = req.body;
+                    res.json({"status": 200, "error": null, "response": result});
+                  }
+                });
+
+              }else{
+                res.json({"status": 500, "error": "user_comic_id does not exists", "response": null});
+              }
+              
+            }
+          });
+        }else{
+          res.json({"status": 500, "error": "course_id does not exists", "response": null});
+        }
+        
+      }
+    });
+
+  }else{
+    res.json({"status": 500, "error": "incomplete parameters"});
+  }
+
+});
+
+/* router.put('/evaluation/:id', function(req, res, next){
+
+  if(typeof req.body != 'undefined' && typeof req.body.course_id != 'undefined' && typeof req.body.user_comic_id != 'undefined'){
+
+    res.locals.connection.query(`SELECT * FROM course WHERE id = ?`, req.body.course_id, function(error, results, fields){
+      if(error){
+        res.json({"status": 500, "error": error, "response": null});
+      }else{
+        
+        if(results.length){
+          res.locals.connection.query(`SELECT * FROM user_comic WHERE id = ?`, req.body.user_comic_id, function(error, results, fields){
+            if(error){
+              res.json({"status": 500, "error": error, "response": null});
+            }else{
+              
+              if(results.length){
+
+                delete req.body.token;
+                res.locals.connection.query('INSERT INTO course_evaluation SET ?', req.body, function(error, result){
+                  if(error){
+                    res.json({"status": 500, "error": error, "response": null});
+                  }else{
+                    req.body.course_evaluation_id = result.insertId;
+                    result.courseEvaluationData = req.body;
+                    res.json({"status": 200, "error": null, "response": result});
+                  }
+                });
+
+              }else{
+                res.json({"status": 500, "error": "user_comic_id does not exists", "response": null});
+              }
+              
+            }
+          });
+        }else{
+          res.json({"status": 500, "error": "course_id does not exists", "response": null});
+        }
+        
+      }
+    });
+
+  }else{
+    res.json({"status": 500, "error": "incomplete parameters"});
+  }
+
+}); /*
 
 module.exports = router;

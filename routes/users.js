@@ -178,8 +178,13 @@ router.put('/:id', function(req, res, next){
 
 router.get('/comics/:id', function(req, res, next){
 
-  res.locals.connection.query(`SELECT id, user_id, title, code, file, course_id, in_gallery, status, register_at, last_update 
-  FROM user_comic WHERE user_id = ?`, req.params.id, function(error, result, fields){
+  let ands = '';
+  ands += (typeof req.query.course != 'undefined' && req.query.course == 1) ? " AND course_id IS NOT NULL " : "";
+
+  res.locals.connection.query(`SELECT uc.id, uc.user_id, uc.title, uc.code, uc.file, uc.course_id, cc.pin, uc.in_gallery, uc.status, uc.register_at, uc.last_update 
+  FROM user_comic uc
+  LEFT JOIN course cc ON uc.course_id = cc.id
+  WHERE uc.user_id = ? ${ands} `, req.params.id, function(error, result, fields){
     if(error){
       res.json({"status": 500, "error": error, "response": null});
     }else{
