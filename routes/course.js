@@ -182,6 +182,6 @@ router.post('/evaluation/', function(req, res, next){
     res.json({"status": 500, "error": "incomplete parameters"});
   }
 
-}); /*
+}); */
 
 module.exports = router;
