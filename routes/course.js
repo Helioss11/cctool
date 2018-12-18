@@ -93,10 +93,10 @@ router.post('/', function(req, res, next){
         getCourse(result.insertId, res, function(error, results){
           if(!error){
             result.courseData = results[0];
+            res.json({"status": 200, "error": null, "response": result});
           }
         });
-        res.json({"status": 200, "error": null, "response": result});
-        
+
       }
     });
 
