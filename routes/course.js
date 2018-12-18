@@ -14,6 +14,20 @@ var calculaPin = function(){
 
 }
 
+var getCourse = function(id, res, callback){
+
+  res.locals.connection.query(`SELECT * FROM course WHERE id = ?`, id, function(error, results, fields){
+
+    if(error){
+      callback(error, null);
+    }else{
+      callback(null, results);
+    }
+
+  });
+
+};
+
 router.get('/', function(req, res, next) {
   
   res.locals.connection.query(`SELECT * FROM course WHERE status = 1`, function(error, results, fields){
@@ -74,9 +88,15 @@ router.post('/', function(req, res, next){
       if(error){
         res.json({"status": 500, "error": error, "response": null});
       }else{
+
         req.body.course_id = result.insertId;
-        result.courseData = req.body;
+        getCourse(result.insertId, res, function(error, results){
+          if(!error){
+            result.courseData = results[0];
+          }
+        });
         res.json({"status": 200, "error": null, "response": result});
+        
       }
     });
 
