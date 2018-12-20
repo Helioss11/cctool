@@ -157,44 +157,36 @@ router.post('/evaluation/', function(req, res, next){
 
 });
 
-/* router.put('/evaluation/:id', function(req, res, next){
+router.put('/evaluation/:id', function(req, res, next){
 
-  if(typeof req.body != 'undefined' && typeof req.body.course_id != 'undefined' && typeof req.body.user_comic_id != 'undefined'){
+  if(typeof req.body != 'undefined' && typeof req.body.course_evaluation_id != 'undefined'){
 
-    res.locals.connection.query(`SELECT * FROM course WHERE id = ?`, req.body.course_id, function(error, results, fields){
+    res.locals.connection.query(`SELECT * FROM course_evaluation WHERE id = ?`, req.body.course_evaluation_id, function(error, results, fields){
       if(error){
         res.json({"status": 500, "error": error, "response": null});
       }else{
-        
         if(results.length){
-          res.locals.connection.query(`SELECT * FROM user_comic WHERE id = ?`, req.body.user_comic_id, function(error, results, fields){
+
+          delete req.body.token;
+          let lastUpdate = new Date();
+          let update = '';
+
+          update += " last_update = " + res.locals.connection.escape(lastUpdate);
+          update += ", icon = " + (typeof req.body.icon != 'undefined' ? res.locals.connection.escape(req.body.icon) : result[0].icon);
+          update += ", comments = " + (typeof req.body.comments != 'undefined' ? res.locals.connection.escape(req.body.comments) : result[0].comments);
+          update += ", stars = " + (typeof req.body.stars != 'undefined' ? res.locals.connection.escape(req.body.stars) : result[0].stars);
+
+          res.locals.connection.query('UPDATE course_evaluation SET ' + update + ' WHERE id = ' + req.body.course_evaluation_id, function(error, result){
+
             if(error){
               res.json({"status": 500, "error": error, "response": null});
             }else{
-              
-              if(results.length){
-
-                delete req.body.token;
-                res.locals.connection.query('INSERT INTO course_evaluation SET ?', req.body, function(error, result){
-                  if(error){
-                    res.json({"status": 500, "error": error, "response": null});
-                  }else{
-                    req.body.course_evaluation_id = result.insertId;
-                    result.courseEvaluationData = req.body;
-                    res.json({"status": 200, "error": null, "response": result});
-                  }
-                });
-
-              }else{
-                res.json({"status": 500, "error": "user_comic_id does not exists", "response": null});
-              }
-              
+              res.json({"status": 200, "error": null, "response": result});
             }
+    
           });
-        }else{
-          res.json({"status": 500, "error": "course_id does not exists", "response": null});
+
         }
-        
       }
     });
 
@@ -202,6 +194,6 @@ router.post('/evaluation/', function(req, res, next){
     res.json({"status": 500, "error": "incomplete parameters"});
   }
 
-}); */
+});
 
 module.exports = router;
