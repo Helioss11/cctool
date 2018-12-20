@@ -186,6 +186,8 @@ router.put('/evaluation/:id', function(req, res, next){
     
           });
 
+        }else{
+          res.json({"status": 500, "error": "course_evaluation_id does not exists", "response": null});
         }
       }
     });
