@@ -29,6 +29,20 @@ var getUser = function(id, res, callback){
 
 };
 
+var getCourseEvaluation = function(id, res, callback){
+
+  res.locals.connection.query(`SELECT * FROM course_evaluation WHERE user_comic_id = ?`, id, function(error, results, fields){
+
+    if(error){
+      callback(error, null);
+    }else{
+      callback(null, results);
+    }
+
+  });
+
+};
+
 /* GET users listing. */
 router.get('/', function(req, res, next) {
 
@@ -184,11 +198,18 @@ router.get('/comics/:id', function(req, res, next){
   res.locals.connection.query(`SELECT uc.id, uc.user_id, uc.title, uc.code, uc.file, uc.course_id, cc.pin, uc.in_gallery, uc.status, uc.register_at, uc.last_update 
   FROM user_comic uc
   LEFT JOIN course cc ON uc.course_id = cc.id
-  WHERE uc.user_id = ? ${ands} `, req.params.id, function(error, result, fields){
+  WHERE uc.user_id = ? ${ands} `, req.params.id, function(error, results, fields){
     if(error){
       res.json({"status": 500, "error": error, "response": null});
     }else{
-      res.json({"status": 200, "error": null, "response": result});
+      for(let i=0; i<results.length; i++){
+        getCourseEvaluation(results[i].id, res, function(error, result){
+          if(!error){
+            results[i].evaluation = result;
+          }
+        });
+      }
+      res.json({"status": 200, "error": null, "response": results});
     }
   });
 
