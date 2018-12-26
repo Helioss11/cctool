@@ -29,29 +29,38 @@ var getUser = function(id, res, callback){
 
 };
 
-var getCourseEvaluation = function(id, res, callback){
+var getCourseEvaluations = function(results, res, callback){
 
-  res.locals.connection.query(`SELECT * FROM course_evaluation WHERE user_comic_id = ?`, id, function(error, results, fields){
+  for(let i=0; i<results.length; i++){
+    res.locals.connection.query(`SELECT * FROM course_evaluation WHERE user_comic_id = ?`, results[i].id, function(error, result, fields){
 
-    if(error){
-      callback(error, null);
-    }else{
-      callback(null, results);
-    }
-
-  });
+      if(error){
+        callback(error, null);
+      }else{
+        results[i].evaluation = result;
+        if(i + 1 == results.length){
+          callback(null, results);
+        }
+      }
+  
+    });
+  }
 
 };
 
 /* GET users listing. */
 router.get('/', function(req, res, next) {
 
+  let ands = ' WHERE 1 = 1 ';
+  ands += (typeof req.query.rol_id != 'undefined') ? ` AND uu.rol_id = ${req.query.rol_id} ` : "";
+  ands += (typeof req.query.name != 'undefined') ? ` AND uu.name LIKE '%${req.query.name}%' ` : "";
+
   res.locals.connection.query(`SELECT uu.id userId, uu.name, uu.lastname, uu.email, uu.username, 
   uu.gender, uu.age, uu.country_id, cc.country, uu.zorb,
   uu.rol_id, rr.rol, uu.status, uu.register_at, uu.last_update 
   FROM users uu 
   INNER JOIN lu_contry_types cc on uu.country_id = cc.id
-  INNER JOIN lu_rol_types rr on uu.rol_id = rr.id`, function(error, results, fields){
+  INNER JOIN lu_rol_types rr on uu.rol_id = rr.id ${ands} `, function(error, results, fields){
     if(error){
       res.json({"status": 500, "error": error, "response": null});
     }else{
@@ -202,14 +211,13 @@ router.get('/comics/:id', function(req, res, next){
     if(error){
       res.json({"status": 500, "error": error, "response": null});
     }else{
-      for(let i=0; i<results.length; i++){
-        getCourseEvaluation(results[i].id, res, function(error, result){
-          if(!error){
-            results[i].evaluation = result;
-          }
-        });
-      }
-      res.json({"status": 200, "error": null, "response": results});
+      getCourseEvaluations(results, res, function(error, result){
+        if(!error){
+          res.json({"status": 200, "error": null, "response": result});
+        }else{
+          res.json({"status": 500, "error": error, "response": null});
+        }
+      });
     }
   });
 
