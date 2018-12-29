@@ -211,13 +211,17 @@ router.get('/comics/:id', function(req, res, next){
     if(error){
       res.json({"status": 500, "error": error, "response": null});
     }else{
-      getCourseEvaluations(results, res, function(error, result){
-        if(!error){
-          res.json({"status": 200, "error": null, "response": result});
-        }else{
-          res.json({"status": 500, "error": error, "response": null});
-        }
-      });
+      if(results.length > 0){
+        getCourseEvaluations(results, res, function(error, result){
+          if(!error){
+            res.json({"status": 200, "error": null, "response": result});
+          }else{
+            res.json({"status": 500, "error": error, "response": null});
+          }
+        });
+      }else{
+        res.json({"status": 200, "error": null, "response": results});
+      }
     }
   });
 
