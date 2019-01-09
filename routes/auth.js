@@ -47,7 +47,7 @@ var createJWToken = function(details, res){
   });
 
   var t = new Date();
-  t.setSeconds(t.getSeconds() + 86400);
+  t.setSeconds(t.getSeconds() + 5184000);
 
   session_tokens = {
     token: refreshToken,
