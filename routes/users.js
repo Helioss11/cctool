@@ -87,7 +87,7 @@ router.get('/:id', function(req, res, next) {
 router.post('/', function(req, res, next){
   
   if(typeof req.body != 'undefined' && typeof req.body.email != 'undefined' && typeof req.body.username != 'undefined' && req.body.password != 'undefined' && 
-  typeof req.body.gender != 'undefined' && (req.body.gender == 'm' || req.body.gender == 'f') && typeof req.body.age != 'undefined' && typeof req.body.country_id != 'undefined' && 
+  typeof req.body.gender != 'undefined' && (req.body.gender == 'm' || req.body.gender == 'f' || req.body.gender == 'o') && typeof req.body.age != 'undefined' && typeof req.body.country_id != 'undefined' && 
   typeof req.body.zorb != 'undefined' && typeof req.body.rol_id != 'undefined'){
 
     let encPass = encryptPassword(req.body.password, req.body.username);
