@@ -19,7 +19,7 @@ router.all('*', function(req, res, next){
   }
 });
 
-router.post('api/v1/token', function(req, res, next){
+router.post('/api/v1/token', function(req, res, next){
 
   if(typeof req.body != 'undefined' && typeof req.body.username != 'undefined' && typeof req.body.refreshToken != 'undefined'){
 
