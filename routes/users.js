@@ -52,7 +52,7 @@ var getCourseEvaluations = function(results, res, callback){
 router.get('/', function(req, res, next) {
 
   let ands = ' WHERE 1 = 1 ';
-  ands += (typeof req.query.rol_id != 'undefined') ? ` AND uu.rol_id = ${req.query.rol_id} ` : "";
+  ands += (typeof req.query.rol_id != 'undefined') ? ` AND uu.rol_id IN (${req.query.rol_id}) ` : "";
   ands += (typeof req.query.name != 'undefined') ? ` AND uu.name LIKE '%${req.query.name}%' ` : "";
 
   res.locals.connection.query(`SELECT uu.id userId, uu.name, uu.lastname, uu.email, uu.username, 
