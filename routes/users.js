@@ -25,7 +25,7 @@ var getUser = function(id, res, callback){
       if(results.length > 0)
         callback(null, results);
       else
-        callback({'error': 'No user found'}, null);
+        callback('No user found', null);
     }
 
   });
