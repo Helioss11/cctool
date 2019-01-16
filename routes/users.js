@@ -22,7 +22,10 @@ var getUser = function(id, res, callback){
     if(error){
       callback(error, null);
     }else{
-      callback(null, results);
+      if(results.length > 0)
+        callback(null, results);
+      else
+        callback({'error': 'No user found'}, null);
     }
 
   });
