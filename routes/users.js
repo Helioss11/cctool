@@ -51,6 +51,10 @@ var getCourseEvaluations = function(results, res, callback){
 
 };
 
+router.options('/', function(req, res){
+  res.json({"status": 200, "error": null, "response": {}});
+});
+
 /* GET users listing. */
 router.get('/', function(req, res, next) {
 
