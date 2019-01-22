@@ -16,7 +16,7 @@ var verifyJWTToken = function(token){
   });
 }
 
-var createJWToken = function(details, res){
+var createJWToken = function(details, req, res){
 
   if(typeof details !== 'object'){
     details = {};
@@ -50,6 +50,7 @@ var createJWToken = function(details, res){
   t.setSeconds(t.getSeconds() + 5184000);
 
   session_tokens = {
+    user_id: details.userId,
     token: refreshToken,
     value: details.sessionData.username,
     expires: t
@@ -57,9 +58,11 @@ var createJWToken = function(details, res){
 
   res.locals.connection.query('INSERT INTO session_tokens SET ?', session_tokens, function(error, result){
     if(error){
-      res.json({"status": 500, "error": error, "response": null});
+      // res.json({"status": 500, "error": error, "response": null});
     }
   });
+
+  setUserSession(req, res, {userId: details.userId}, function(error, results){});
 
   return {"token": token, "refreshToken": refreshToken};
 
@@ -84,6 +87,8 @@ var refreshJWToken = function(req, res, details){
               });
           
               tokenList[details.refreshToken] = token;
+
+              setUserSession(req, res, {userId: results[0].user_id}, function(error, results){});
   
               resolve({"token": token, "refreshToken": details.refreshToken});
             }else{
@@ -98,4 +103,38 @@ var refreshJWToken = function(req, res, details){
 
 }
 
-module.exports = {verifyJWTToken, createJWToken, refreshJWToken};
+var setUserSession = function(req, res, data, callback){
+
+  res.locals.connection.query(`SELECT IFNULL(TIMESTAMPDIFF(MINUTE, (select max(ls.date_created) from users_log_session ls where ls.user_id = ${data.userId}), NOW()), 61) minutos`, 
+  function(error, result, fields){
+
+    if(!error){
+      
+      if(result[0].minutos > 60){
+
+        sessionData = {
+          user_id: data.userId,
+          remote_address: req.connection.remoteAddress,
+          user_agent: req.headers['user-agent']
+        }
+
+        res.locals.connection.query('INSERT INTO users_log_session SET ?', sessionData, function(error, results){
+          if(error){
+            callback(error, null);
+          }else{
+            callback(null, result);
+          }
+        });
+
+      }else{
+        callback(null, null);
+      }
+    }else{
+      callback(error, null);
+    }
+
+  });
+
+}
+
+module.exports = {verifyJWTToken, createJWToken, refreshJWToken, setUserSession};

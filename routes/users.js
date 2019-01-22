@@ -147,9 +147,10 @@ router.post('/auth/', function(req, res, next){
         if(results.length > 0){
 
           let token = JWToken.createJWToken({
+            userId: results[0].id,
             sessionData: { "username": req.body.username },
             maxAge: 43200 // TODO 12 HRS
-          }, res);
+          }, req, res);
           
           results[0].tokenData = token;
           res.json({"status": 200, "error": null, "response": results[0]});
