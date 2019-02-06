@@ -47,7 +47,7 @@ var createJWToken = function(details, req, res){
   });
 
   var t = new Date();
-  t.setSeconds(t.getSeconds() + 5184000);
+  t.setSeconds(t.getSeconds() + 2592000);
 
   session_tokens = {
     user_id: details.userId,
