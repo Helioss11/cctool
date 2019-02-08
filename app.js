@@ -10,7 +10,8 @@ var usersRouter = require('./routes/users');
 var assetsRouter = require('./routes/assets');
 var lookupRouter = require('./routes/lookups');
 var courseRouter = require('./routes/course');
-var comicRouter = require('./routes/comic')
+var comicRouter = require('./routes/comic');
+var pool = require('./database');
 
 var mysql = require("mysql");
 
@@ -36,14 +37,15 @@ app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 
 app.use((req, res, next) => {
-  res.locals.connection = mysql.createConnection({
+  res.locals.pool = pool;
+  /* res.locals.connection = mysql.createConnection({
     host: 'localhost',
     user: 'root',
     password: '',
     database: 'cctool_db',
     connectionLimit: 190,
     insecureAuth: true
-  });
+  }); */
   next();
 });
 

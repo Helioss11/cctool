@@ -3,7 +3,7 @@ var router = express.Router();
 
 router.get('/country/', function(req, res, next) {
   
-  res.locals.connection.query(`SELECT id, country FROM lu_contry_types WHERE status = 1`, function(error, results, fields){
+  res.locals.pool.query(`SELECT id, country FROM lu_contry_types WHERE status = 1`, function(error, results, fields){
     if(error){
       res.json({"status": 500, "error": error, "response": null});
     }else{
@@ -15,7 +15,7 @@ router.get('/country/', function(req, res, next) {
 
 router.get('/category/', function(req, res, next) {
   
-  res.locals.connection.query(`SELECT id, category FROM lu_category_types WHERE status = 1`, function(error, results, fields){
+  res.locals.pool.query(`SELECT id, category FROM lu_category_types WHERE status = 1`, function(error, results, fields){
     if(error){
       res.json({"status": 500, "error": error, "response": null});
     }else{
@@ -27,7 +27,7 @@ router.get('/category/', function(req, res, next) {
 
 router.get('/rol/', function(req, res, next) {
   
-  res.locals.connection.query(`SELECT id, rol FROM lu_rol_types WHERE status = 1`, function(error, results, fields){
+  res.locals.pool.query(`SELECT id, rol FROM lu_rol_types WHERE status = 1`, function(error, results, fields){
     if(error){
       res.json({"status": 500, "error": error, "response": null});
     }else{

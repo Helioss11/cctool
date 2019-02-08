@@ -56,7 +56,7 @@ var createJWToken = function(details, req, res){
     expires: t
   }
 
-  res.locals.connection.query('INSERT INTO session_tokens SET ?', session_tokens, function(error, result){
+  res.locals.pool.query('INSERT INTO session_tokens SET ?', session_tokens, function(error, result){
     if(error){
       // res.json({"status": 500, "error": error, "response": null});
     }
@@ -71,9 +71,9 @@ var createJWToken = function(details, req, res){
 var refreshJWToken = function(req, res, details){
 
   return new Promise((resolve, reject) => {
-    res.locals.connection.query(`DELETE FROM session_tokens WHERE expires < NOW()`, function(e, r){
+    res.locals.pool.query(`DELETE FROM session_tokens WHERE expires < NOW()`, function(e, r){
       if(!e){
-        res.locals.connection.query(`SELECT * FROM session_tokens WHERE token = '${details.refreshToken}' AND value = '${details.username}'`, function(error, results){
+        res.locals.pool.query(`SELECT * FROM session_tokens WHERE token = '${details.refreshToken}' AND value = '${details.username}'`, function(error, results){
           if(error){
             return reject(error);
           }else{
@@ -105,7 +105,7 @@ var refreshJWToken = function(req, res, details){
 
 var setUserSession = function(req, res, data, callback){
 
-  res.locals.connection.query(`SELECT IFNULL(TIMESTAMPDIFF(MINUTE, (select max(ls.date_created) from users_log_session ls where ls.user_id = ${data.userId}), NOW()), 61) minutos`, 
+  res.locals.pool.query(`SELECT IFNULL(TIMESTAMPDIFF(MINUTE, (select max(ls.date_created) from users_log_session ls where ls.user_id = ${data.userId}), NOW()), 61) minutos`, 
   function(error, result, fields){
 
     if(!error){
@@ -118,7 +118,7 @@ var setUserSession = function(req, res, data, callback){
           user_agent: req.headers['user-agent']
         }
 
-        res.locals.connection.query('INSERT INTO users_log_session SET ?', sessionData, function(error, results){
+        res.locals.pool.query('INSERT INTO users_log_session SET ?', sessionData, function(error, results){
           if(error){
             callback(error, null);
           }else{

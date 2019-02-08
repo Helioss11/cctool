@@ -16,7 +16,7 @@ var calculaPin = function(){
 
 var getCourse = function(id, res, callback){
 
-  res.locals.connection.query(`SELECT * FROM course WHERE id = ?`, id, function(error, results, fields){
+  res.locals.pool.query(`SELECT * FROM course WHERE id = ?`, id, function(error, results, fields){
 
     if(error){
       callback(error, null);
@@ -30,7 +30,7 @@ var getCourse = function(id, res, callback){
 
 router.get('/', function(req, res, next) {
   
-  res.locals.connection.query(`SELECT * FROM course WHERE status = 1`, function(error, results, fields){
+  res.locals.pool.query(`SELECT * FROM course WHERE status = 1`, function(error, results, fields){
     if(error){
       res.json({"status": 500, "error": error, "response": null});
     }else{
@@ -42,7 +42,7 @@ router.get('/', function(req, res, next) {
 
 router.get('/:id', function(req, res, next) {
   
-  res.locals.connection.query(`SELECT * FROM course WHERE id = ?`, req.params.id, function(error, results, fields){
+  res.locals.pool.query(`SELECT * FROM course WHERE id = ?`, req.params.id, function(error, results, fields){
     if(error){
       res.json({"status": 500, "error": error, "response": null});
     }else{
@@ -54,7 +54,7 @@ router.get('/:id', function(req, res, next) {
 
 router.get('/pin/:pin', function(req, res, next) {
   
-  res.locals.connection.query(`SELECT * FROM course WHERE pin = ?`, req.params.pin, function(error, results, fields){
+  res.locals.pool.query(`SELECT * FROM course WHERE pin = ?`, req.params.pin, function(error, results, fields){
     if(error){
       res.json({"status": 500, "error": error, "response": null});
     }else{
@@ -66,7 +66,7 @@ router.get('/pin/:pin', function(req, res, next) {
 
 router.get('/user/:user_id', function(req, res, next) {
   
-  res.locals.connection.query(`SELECT * FROM course WHERE user_id = ?`, req.params.user_id, function(error, results, fields){
+  res.locals.pool.query(`SELECT * FROM course WHERE user_id = ?`, req.params.user_id, function(error, results, fields){
     if(error){
       res.json({"status": 500, "error": error, "response": null});
     }else{
@@ -84,7 +84,7 @@ router.post('/', function(req, res, next){
     req.body.pin = pin;
     delete req.body.token;
 
-    res.locals.connection.query('INSERT INTO course SET ?', req.body, function(error, result){
+    res.locals.pool.query('INSERT INTO course SET ?', req.body, function(error, result){
       if(error){
         res.json({"status": 500, "error": error, "response": null});
       }else{
@@ -114,13 +114,13 @@ router.post('/evaluation/', function(req, res, next){
   typeof req.body.comments != 'undefined' &&
   typeof req.body.stars != 'undefined'){
 
-    res.locals.connection.query(`SELECT * FROM course WHERE id = ?`, req.body.course_id, function(error, results, fields){
+    res.locals.pool.query(`SELECT * FROM course WHERE id = ?`, req.body.course_id, function(error, results, fields){
       if(error){
         res.json({"status": 500, "error": error, "response": null});
       }else{
         
         if(results.length){
-          res.locals.connection.query(`SELECT * FROM user_comic WHERE id = ?`, req.body.user_comic_id, function(error, results, fields){
+          res.locals.pool.query(`SELECT * FROM user_comic WHERE id = ?`, req.body.user_comic_id, function(error, results, fields){
             if(error){
               res.json({"status": 500, "error": error, "response": null});
             }else{
@@ -128,7 +128,7 @@ router.post('/evaluation/', function(req, res, next){
               if(results.length){
 
                 delete req.body.token;
-                res.locals.connection.query('INSERT INTO course_evaluation SET ?', req.body, function(error, result){
+                res.locals.pool.query('INSERT INTO course_evaluation SET ?', req.body, function(error, result){
                   if(error){
                     res.json({"status": 500, "error": error, "response": null});
                   }else{
@@ -161,7 +161,7 @@ router.put('/evaluation/:id', function(req, res, next){
 
   if(typeof req.body != 'undefined' && typeof req.body.course_evaluation_id != 'undefined'){
 
-    res.locals.connection.query(`SELECT * FROM course_evaluation WHERE id = ?`, req.body.course_evaluation_id, function(error, results, fields){
+    res.locals.pool.query(`SELECT * FROM course_evaluation WHERE id = ?`, req.body.course_evaluation_id, function(error, results, fields){
       if(error){
         res.json({"status": 500, "error": error, "response": null});
       }else{
@@ -171,12 +171,12 @@ router.put('/evaluation/:id', function(req, res, next){
           let lastUpdate = new Date();
           let update = '';
 
-          update += " last_update = " + res.locals.connection.escape(lastUpdate);
-          update += ", icon = " + (typeof req.body.icon != 'undefined' ? res.locals.connection.escape(req.body.icon) : result[0].icon);
-          update += ", comments = " + (typeof req.body.comments != 'undefined' ? res.locals.connection.escape(req.body.comments) : result[0].comments);
-          update += ", stars = " + (typeof req.body.stars != 'undefined' ? res.locals.connection.escape(req.body.stars) : result[0].stars);
+          update += " last_update = " + res.locals.pool.escape(lastUpdate);
+          update += ", icon = " + (typeof req.body.icon != 'undefined' ? res.locals.pool.escape(req.body.icon) : result[0].icon);
+          update += ", comments = " + (typeof req.body.comments != 'undefined' ? res.locals.pool.escape(req.body.comments) : result[0].comments);
+          update += ", stars = " + (typeof req.body.stars != 'undefined' ? res.locals.pool.escape(req.body.stars) : result[0].stars);
 
-          res.locals.connection.query('UPDATE course_evaluation SET ' + update + ' WHERE id = ' + req.body.course_evaluation_id, function(error, result){
+          res.locals.pool.query('UPDATE course_evaluation SET ' + update + ' WHERE id = ' + req.body.course_evaluation_id, function(error, result){
 
             if(error){
               res.json({"status": 500, "error": error, "response": null});

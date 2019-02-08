@@ -24,7 +24,7 @@ router.post('/', upload.single('image'), (req, res, next) => {
       imageuri: 'images/uploads/' + req.file.filename
     };
 
-    res.locals.connection.query('INSERT INTO asset SET ?', assetData, function(error, result){
+    res.locals.pool.query('INSERT INTO asset SET ?', assetData, function(error, result){
       if(error){
         res.json({"status": 500, "error": error, "response": null});
       }else{
@@ -41,7 +41,7 @@ router.post('/', upload.single('image'), (req, res, next) => {
 
 router.get('/', function(req, res, next) {
 
-    res.locals.connection.query('SELECT * FROM asset', function(error, results, fields){
+    res.locals.pool.query('SELECT * FROM asset', function(error, results, fields){
       if(error){
         res.json({"status": 500, "error": error, "response": null});
       }else{
@@ -53,7 +53,7 @@ router.get('/', function(req, res, next) {
 
 router.get('/:id', function(req, res, next) {
 
-    res.locals.connection.query('SELECT * FROM asset WHERE id = ?', req.params.id, function(error, results, fields){
+    res.locals.pool.query('SELECT * FROM asset WHERE id = ?', req.params.id, function(error, results, fields){
       if(error){
         res.json({"status": 500, "error": error, "response": null});
       }else{
@@ -65,7 +65,7 @@ router.get('/:id', function(req, res, next) {
 
 router.put('/:id', function(req, res, next){
 
-  res.locals.connection.query('SELECT * FROM asset WHERE id = ?', req.params.id, function(error, results, fields){
+  res.locals.pool.query('SELECT * FROM asset WHERE id = ?', req.params.id, function(error, results, fields){
     if(error){
       res.json({"status": 500, "error": error, "response": null});
     }else{
@@ -73,11 +73,11 @@ router.put('/:id', function(req, res, next){
       let lastUpdate = new Date();
       let update = '';
 
-      update += " last_update = " + res.locals.connection.escape(lastUpdate)
-      update += ", status = " + (typeof req.body.status != 'undefined' ? res.locals.connection.escape(req.body.status) : results[0].status);
-      update += ", category_id = " + (typeof req.body.category_id != 'undefined' ? res.locals.connection.escape(req.body.category_id) : results[0].category_id);
+      update += " last_update = " + res.locals.pool.escape(lastUpdate)
+      update += ", status = " + (typeof req.body.status != 'undefined' ? res.locals.pool.escape(req.body.status) : results[0].status);
+      update += ", category_id = " + (typeof req.body.category_id != 'undefined' ? res.locals.pool.escape(req.body.category_id) : results[0].category_id);
 
-      res.locals.connection.query('UPDATE asset SET ' + update + ' WHERE id = ' + req.params.id, function(error, result){
+      res.locals.pool.query('UPDATE asset SET ' + update + ' WHERE id = ' + req.params.id, function(error, result){
 
         if(error){
           res.json({"status": 500, "error": error, "response": null});
@@ -94,7 +94,7 @@ router.put('/:id', function(req, res, next){
 
 router.delete('/:id', function(req, res, next) {
 
-  res.locals.connection.query('DELETE FROM asset WHERE id = ?', req.params.id, function(error, results, fields){
+  res.locals.pool.query('DELETE FROM asset WHERE id = ?', req.params.id, function(error, results, fields){
     if(error){
       res.json({"status": 500, "error": error, "response": null});
     }else{

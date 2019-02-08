@@ -11,7 +11,7 @@ encryptPassword.pattern = /^\w{8,24}$/;
 
 var getUser = function(id, res, callback){
 
-  res.locals.connection.query(`SELECT uu.id userId, uu.name, uu.lastname, uu.email, uu.username, 
+  res.locals.pool.query(`SELECT uu.id userId, uu.name, uu.lastname, uu.email, uu.username, 
   uu.gender, uu.age, uu.country_id, cc.country, uu.zorb, 
   uu.rol_id, rr.rol, uu.status, uu.register_at, uu.last_update 
   FROM users uu 
@@ -35,7 +35,7 @@ var getUser = function(id, res, callback){
 var getCourseEvaluations = function(results, res, callback){
 
   for(let i=0; i<results.length; i++){
-    res.locals.connection.query(`SELECT * FROM course_evaluation WHERE user_comic_id = ?`, results[i].id, function(error, result, fields){
+    res.locals.pool.query(`SELECT * FROM course_evaluation WHERE user_comic_id = ?`, results[i].id, function(error, result, fields){
 
       if(error){
         callback(error, null);
@@ -58,7 +58,7 @@ router.get('/', function(req, res, next) {
   ands += (typeof req.query.rol_id != 'undefined') ? ` AND uu.rol_id IN (${req.query.rol_id}) ` : "";
   ands += (typeof req.query.name != 'undefined') ? ` AND uu.name LIKE '%${req.query.name}%' ` : "";
 
-  res.locals.connection.query(`SELECT uu.id userId, uu.name, uu.lastname, uu.email, uu.username, 
+  res.locals.pool.query(`SELECT uu.id userId, uu.name, uu.lastname, uu.email, uu.username, 
   uu.gender, uu.age, uu.country_id, cc.country, uu.zorb,
   uu.rol_id, rr.rol, uu.status, uu.register_at, uu.last_update 
   FROM users uu 
@@ -96,7 +96,7 @@ router.post('/', function(req, res, next){
     let encPass = encryptPassword(req.body.password, req.body.username);
     req.body.password = encPass;
     
-    res.locals.connection.query('INSERT INTO users SET ?', req.body, function(error, result){
+    res.locals.pool.query('INSERT INTO users SET ?', req.body, function(error, result){
       if(error){
         res.json({"status": 500, "error": error, "response": null});
       }else{
@@ -116,7 +116,7 @@ router.post('/username', function(req, res, next){
 
   if(typeof req.body != 'undefined' && typeof req.body.username != 'undefined'){
 
-    res.locals.connection.query(`SELECT id, username FROM users WHERE username = '${req.body.username}'`, function(error, result, fields){
+    res.locals.pool.query(`SELECT id, username FROM users WHERE username = '${req.body.username}'`, function(error, result, fields){
       if(error){
         res.json({"status": 500, "error": error, "response": null});
       }else{
@@ -140,7 +140,7 @@ router.post('/auth/', function(req, res, next){
 
     let encPass = encryptPassword(req.body.password, req.body.username);
 
-    res.locals.connection.query(`SELECT * FROM users WHERE username = '${req.body.username}' AND password = '${encPass}'`, function(error, results, fields){
+    res.locals.pool.query(`SELECT * FROM users WHERE username = '${req.body.username}' AND password = '${encPass}'`, function(error, results, fields){
       if(error){
         res.json({"status": 500, "error": error, "response": null});
       }else{
@@ -178,16 +178,16 @@ router.put('/:id', function(req, res, next){
       let lastUpdate = new Date();
       let update = '';
 
-      update += " last_update = " + res.locals.connection.escape(lastUpdate)
-      update += ", name = " +       (typeof req.body.name != 'undefined' ?       res.locals.connection.escape(req.body.name) :       results[0].name);
-      update += ", lastname = " +   (typeof req.body.lastname != 'undefined' ?   res.locals.connection.escape(req.body.lastname) :   results[0].lastname);
-      update += ", gender = " +     (typeof req.body.gender != 'undefined' ?     res.locals.connection.escape(req.body.gender) :     results[0].gender);
-      update += ", age = " +        (typeof req.body.age != 'undefined' ?        res.locals.connection.escape(req.body.age) :        results[0].age);
-      update += ", country_id = " + (typeof req.body.country_id != 'undefined' ? res.locals.connection.escape(req.body.country_id) : results[0].country_id);
-      update += ", zorb = " +       (typeof req.body.zorb != 'undefined' ?       res.locals.connection.escape(req.body.zorb) :       results[0].zorb);
-      update += ", rol_id = " +     (typeof req.body.rol_id != 'undefined' ?     res.locals.connection.escape(req.body.rol_id) :     results[0].rol_id);
+      update += " last_update = " + res.locals.pool.escape(lastUpdate)
+      update += ", name = " +       (typeof req.body.name != 'undefined' ?       res.locals.pool.escape(req.body.name) :       results[0].name);
+      update += ", lastname = " +   (typeof req.body.lastname != 'undefined' ?   res.locals.pool.escape(req.body.lastname) :   results[0].lastname);
+      update += ", gender = " +     (typeof req.body.gender != 'undefined' ?     res.locals.pool.escape(req.body.gender) :     results[0].gender);
+      update += ", age = " +        (typeof req.body.age != 'undefined' ?        res.locals.pool.escape(req.body.age) :        results[0].age);
+      update += ", country_id = " + (typeof req.body.country_id != 'undefined' ? res.locals.pool.escape(req.body.country_id) : results[0].country_id);
+      update += ", zorb = " +       (typeof req.body.zorb != 'undefined' ?       res.locals.pool.escape(req.body.zorb) :       results[0].zorb);
+      update += ", rol_id = " +     (typeof req.body.rol_id != 'undefined' ?     res.locals.pool.escape(req.body.rol_id) :     results[0].rol_id);
 
-      res.locals.connection.query('UPDATE users SET ' + update + ' WHERE id = ' + req.params.id, function(error, result){
+      res.locals.pool.query('UPDATE users SET ' + update + ' WHERE id = ' + req.params.id, function(error, result){
 
         if(error){
           res.json({"status": 500, "error": error, "response": null});
@@ -208,7 +208,7 @@ router.get('/comics/:id', function(req, res, next){
   let ands = '';
   ands += (typeof req.query.course != 'undefined' && req.query.course == 1) ? " AND course_id IS NOT NULL " : "";
 
-  res.locals.connection.query(`SELECT uc.id, uc.user_id, uc.title, uc.code, uc.file, uc.course_id, cc.pin, uc.in_gallery, uc.status, uc.register_at, uc.last_update 
+  res.locals.pool.query(`SELECT uc.id, uc.user_id, uc.title, uc.code, uc.file, uc.course_id, cc.pin, uc.in_gallery, uc.status, uc.register_at, uc.last_update 
   FROM user_comic uc
   LEFT JOIN course cc ON uc.course_id = cc.id
   WHERE uc.user_id = ? ${ands} `, req.params.id, function(error, results, fields){
@@ -234,11 +234,11 @@ router.get('/comics/:id', function(req, res, next){
 router.post('/comic', function(req, res, next){
 
   if(typeof req.body != 'undefined' && typeof req.body.user_id != 'undefined'){
-    res.locals.connection.query(`SELECT id FROM user_comic WHERE user_id = '${req.body.user_id}' AND title = '${req.body.title}'`, function(error, result, fields){
+    res.locals.pool.query(`SELECT id FROM user_comic WHERE user_id = '${req.body.user_id}' AND title = '${req.body.title}'`, function(error, result, fields){
       if(result.length === 0){
 
         delete req.body.token;
-        res.locals.connection.query('INSERT INTO user_comic SET ?', req.body, function(error, result){
+        res.locals.pool.query('INSERT INTO user_comic SET ?', req.body, function(error, result){
           if(error){
             res.json({"status": 500, "error": error, "response": null});
           }else{
