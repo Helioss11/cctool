@@ -1,10 +1,46 @@
 var express = require('express');
 var router = express.Router();
+var path = require('path');
+var multer = require('multer');
+
+var storage = multer.diskStorage({
+    destination: (req, file, cb) => {
+      cb(null, path.join(__dirname, '../', '/public/comics'))
+    },
+    filename: (req, file, cb) => {
+      cb(null, file.fieldname + '-' + Date.now() + path.extname(file.originalname))
+    }
+});
+  
+var upload = multer({storage: storage});
+
+router.post('/uploadpdf', upload.single('pdf'), (req, res, next) => {
+  if(typeof req.body != "undefined" && typeof req.body.user_comic_id != "undefined"){
+
+    let comicData = {
+      user_comic_id: req.body.user_comic_id,
+      comicuri: 'comics/' + req.file.filename
+    };
+
+    res.locals.pool.query(`UPDATE user_comic SET file = '${comicData.comicuri}' WHERE id = ${comicData.user_comic_id}`, function(error, result){
+      if(error){
+        res.json({"status": 500, "error": error, "response": null});
+      }else{
+        result.comicData = comicData;
+        result.fileData = req.file;
+        res.json({"status": 200, "error": null, "response": result});
+      }
+    });
+
+  }else{
+    res.json({"status": 500, "error": "incomplete parameters"});
+  }
+});
 
 router.get('/', function(req, res, next){
 
   res.locals.pool.query(`SELECT id, user_id, title, code, file, course_id, in_gallery, status, register_at, last_update 
-  FROM user_comic`, function(error, result, fields){
+  FROM user_comic WHERE status = true`, function(error, result, fields){
     if(error){
       res.json({"status": 500, "error": error, "response": null});
     }else{
@@ -17,7 +53,7 @@ router.get('/', function(req, res, next){
 router.get('/gallery', function(req, res, next){
 
   res.locals.pool.query(`SELECT id, user_id, title, code, file, course_id, in_gallery, status, register_at, last_update 
-  FROM user_comic WHERE in_gallery = true`, function(error, result, fields){
+  FROM user_comic WHERE in_gallery = true AND status = true`, function(error, result, fields){
     if(error){
       res.json({"status": 500, "error": error, "response": null});
     }else{
@@ -30,7 +66,7 @@ router.get('/gallery', function(req, res, next){
 router.get('/:id', function(req, res, next){
 
   res.locals.pool.query(`SELECT id, user_id, title, code, file, course_id, in_gallery, status, register_at, last_update 
-  FROM user_comic WHERE id = ?`, req.params.id, function(error, result, fields){
+  FROM user_comic WHERE id = ? AND status = true`, req.params.id, function(error, result, fields){
     if(error){
       res.json({"status": 500, "error": error, "response": null});
     }else{
@@ -49,7 +85,7 @@ router.put('/', function(req, res, next){
         res.json({"status": 500, "error": error, "response": null});
       }else{
         if(results.length > 0){
-          res.locals.pool.query(`SELECT * FROM user_comic WHERE id = ${req.body.comic_id} AND user_id = ${req.body.user_id}`, function(error, result, fields){
+          res.locals.pool.query(`SELECT * FROM user_comic WHERE id = ${req.body.comic_id} AND user_id = ${req.body.user_id} AND status = true`, function(error, result, fields){
             if(error){
               res.json({"status": 500, "error": error, "response": null});
             }else{
@@ -62,7 +98,7 @@ router.put('/', function(req, res, next){
                 update += ", title = " + (typeof req.body.title != 'undefined' ? res.locals.pool.escape(req.body.title) : result[0].title);
                 update += ", code = " + (typeof req.body.code != 'undefined' ? res.locals.pool.escape(req.body.code) : result[0].code);
                 update += ", file = " + (typeof req.body.file != 'undefined' ? res.locals.pool.escape(req.body.file) : result[0].file);
-                update += ", course_id = " + (typeof req.body.course_id != 'undefined' ? res.locals.pool.escape(req.body.course_id) : result[0].course_id);
+                update += ", course_id = " + (typeof req.body.course_id != 'undefined' && req.body.course_id > 0 ? res.locals.pool.escape(req.body.course_id) : result[0].course_id);
                 update += ", in_gallery = " + (typeof req.body.in_gallery != 'undefined' ? res.locals.pool.escape(req.body.in_gallery) : result[0].in_gallery);
                 update += ", status = " + (typeof req.body.status != 'undefined' ? res.locals.pool.escape(req.body.status) : result[0].status);
 

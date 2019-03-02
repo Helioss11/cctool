@@ -5,9 +5,9 @@ var encryptPassword = require('encrypt-password');
 var JWToken = require('./auth');
 
 encryptPassword.secret = 'NacmVJ5hNx';
-encryptPassword.min = 8;
+encryptPassword.min = 4;
 encryptPassword.max = 24;
-encryptPassword.pattern = /^\w{8,24}$/;
+encryptPassword.pattern = /^\w{4,24}$/;
 
 var getUser = function(id, res, callback){
 
@@ -59,7 +59,7 @@ router.get('/', function(req, res, next) {
   ands += (typeof req.query.name != 'undefined') ? ` AND uu.name LIKE '%${req.query.name}%' ` : "";
 
   res.locals.pool.query(`SELECT uu.id userId, uu.name, uu.lastname, uu.email, uu.username, 
-  uu.gender, uu.age, uu.country_id, cc.country, uu.zorb,
+  uu.gender, uu.age, uu.country_id, cc.country, uu.zorb, uu.color,
   uu.rol_id, rr.rol, uu.status, uu.register_at, uu.last_update 
   FROM users uu 
   INNER JOIN lu_contry_types cc on uu.country_id = cc.id
@@ -70,6 +70,57 @@ router.get('/', function(req, res, next) {
       res.json({"status": 200, "error": null, "response": results});
     }
   });
+
+});
+
+router.post('/recover/test', function(req, res, next){
+
+  if(typeof req.body != 'undefined' && typeof req.body.zorb != 'undefined' && typeof req.body.username != 'undefined' && typeof req.body.color != 'undefined'){
+
+    req.body.username = req.body.username.trim().toLowerCase();
+
+    res.locals.pool.query(`SELECT uu.id userId, uu.name, uu.lastname, uu.email, uu.username, 
+    uu.gender, uu.age, uu.country_id, uu.zorb, uu.color, uu.rol_id, uu.status, uu.register_at, uu.last_update 
+    FROM users uu 
+    WHERE uu.zorb = ${res.locals.pool.escape(req.body.zorb)} 
+    AND uu.username = ${res.locals.pool.escape(req.body.username)} 
+    AND uu.color = ${res.locals.pool.escape(req.body.color)}`, function(error, result, fields){
+      if(error){
+        res.json({"status": 500, "error": error, "response": null});
+      }else{
+        if(result.length > 0){
+          res.json({"status": 200, "error": null, "response": result[0]});
+        }else{
+          res.json({"status": 200, "error": null, "response": {}});
+        }
+      }
+    });
+
+  }else{
+    res.json({"status": 500, "error": "incomplete parameters"});
+  }
+
+});
+
+router.put('/recover/:id', function(req, res, next){
+
+  if(typeof req.body != 'undefined' && typeof req.body.username != 'undefined' && typeof req.body.password != 'undefined'){
+
+    let encPass = encryptPassword(req.body.password.trim().toLowerCase(), req.body.username.trim().toLowerCase());
+
+    res.locals.pool.query(`UPDATE users SET password = '${encPass}' WHERE id = ${req.params.id} AND username = '${req.body.username}'` , function(error, result){
+
+      if(error){
+        res.json({"status": 500, "error": error, "response": null});
+      }else{
+        res.json({"status": 200, "error": null, "response": result});
+      }
+
+    });
+
+  }else{
+    res.json({"status": 500, "error": "incomplete parameters"});
+  }
 
 });
 
@@ -93,7 +144,7 @@ router.post('/', function(req, res, next){
   typeof req.body.gender != 'undefined' && (req.body.gender == 'm' || req.body.gender == 'f' || req.body.gender == 'o') && typeof req.body.age != 'undefined' && typeof req.body.country_id != 'undefined' && 
   typeof req.body.zorb != 'undefined' && typeof req.body.rol_id != 'undefined'){
 
-    let encPass = encryptPassword(req.body.password, req.body.username);
+    let encPass = encryptPassword(req.body.password.trim().toLowerCase(), req.body.username.trim().toLowerCase());
     req.body.password = encPass;
     
     res.locals.pool.query('INSERT INTO users SET ?', req.body, function(error, result){
@@ -115,6 +166,8 @@ router.post('/', function(req, res, next){
 router.post('/username', function(req, res, next){
 
   if(typeof req.body != 'undefined' && typeof req.body.username != 'undefined'){
+
+    req.body.username = req.body.username.trim().toLowerCase();
 
     res.locals.pool.query(`SELECT id, username FROM users WHERE username = '${req.body.username}'`, function(error, result, fields){
       if(error){
@@ -138,7 +191,8 @@ router.post('/auth/', function(req, res, next){
 
   if(typeof req.body != 'undefined' && typeof req.body.username != 'undefined' && typeof req.body.password != 'undefined'){
 
-    let encPass = encryptPassword(req.body.password, req.body.username);
+    let encPass = encryptPassword(req.body.password.trim().toLowerCase(), req.body.username.trim().toLowerCase());
+    req.body.username = req.body.username.trim().toLowerCase();
 
     res.locals.pool.query(`SELECT * FROM users WHERE username = '${req.body.username}' AND password = '${encPass}'`, function(error, results, fields){
       if(error){
@@ -185,6 +239,7 @@ router.put('/:id', function(req, res, next){
       update += ", age = " +        (typeof req.body.age != 'undefined' ?        res.locals.pool.escape(req.body.age) :        results[0].age);
       update += ", country_id = " + (typeof req.body.country_id != 'undefined' ? res.locals.pool.escape(req.body.country_id) : results[0].country_id);
       update += ", zorb = " +       (typeof req.body.zorb != 'undefined' ?       res.locals.pool.escape(req.body.zorb) :       results[0].zorb);
+      update += ", color = " +      (typeof req.body.color != 'undefined' ?      res.locals.pool.escape(req.body.color) :      results[0].color);
       update += ", rol_id = " +     (typeof req.body.rol_id != 'undefined' ?     res.locals.pool.escape(req.body.rol_id) :     results[0].rol_id);
 
       res.locals.pool.query('UPDATE users SET ' + update + ' WHERE id = ' + req.params.id, function(error, result){
@@ -208,10 +263,10 @@ router.get('/comics/:id', function(req, res, next){
   let ands = '';
   ands += (typeof req.query.course != 'undefined' && req.query.course == 1) ? " AND course_id IS NOT NULL " : "";
 
-  res.locals.pool.query(`SELECT uc.id, uc.user_id, uc.title, uc.code, uc.file, uc.course_id, cc.pin, uc.in_gallery, uc.status, uc.register_at, uc.last_update 
+  res.locals.pool.query(`SELECT uc.id user_comic_id, uc.user_id, uc.title, uc.code, uc.file, uc.course_id, cc.pin, uc.in_gallery, uc.status, uc.register_at, uc.last_update 
   FROM user_comic uc
   LEFT JOIN course cc ON uc.course_id = cc.id
-  WHERE uc.user_id = ? ${ands} `, req.params.id, function(error, results, fields){
+  WHERE uc.user_id = ? ${ands} AND uc.status = true`, req.params.id, function(error, results, fields){
     if(error){
       res.json({"status": 500, "error": error, "response": null});
     }else{
@@ -231,10 +286,35 @@ router.get('/comics/:id', function(req, res, next){
 
 });
 
+router.get('/pines/:id', function(req, res, next){
+
+  res.locals.pool.query(`select distinct(cc.pin) pin, cc.id course_id, cc.name, uc.register_at
+  from user_comic uc 
+  inner join course cc on uc.course_id = cc.id
+  where uc.user_id = ?
+  and cc.status = true
+  and uc.status = true`, req.params.id, function(error, results, fields){
+    if(error){
+      res.json({"status": 500, "error": error, "response": null});
+    }else{
+      if(results.length > 0){
+        let pines = [];
+        for(pin in results){
+          pines.push(results[pin].pin);
+        }
+        res.json({"status": 200, "error": null, "response": {"pines": pines, "cursos": results}});
+      }else{
+        res.json({"status": 500, "error": "No data", "response": null});
+      }
+    }
+  });
+
+});
+
 router.post('/comic', function(req, res, next){
 
   if(typeof req.body != 'undefined' && typeof req.body.user_id != 'undefined'){
-    res.locals.pool.query(`SELECT id FROM user_comic WHERE user_id = '${req.body.user_id}' AND title = '${req.body.title}'`, function(error, result, fields){
+    res.locals.pool.query(`SELECT id FROM user_comic WHERE user_id = '${req.body.user_id}' AND title = '${req.body.title}' AND status = true`, function(error, result, fields){
       if(result.length === 0){
 
         delete req.body.token;
