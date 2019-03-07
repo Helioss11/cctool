@@ -35,7 +35,7 @@ var getUser = function(id, res, callback){
 var getCourseEvaluations = function(results, res, callback){
 
   for(let i=0; i<results.length; i++){
-    res.locals.pool.query(`SELECT * FROM course_evaluation WHERE user_comic_id = ?`, results[i].id, function(error, result, fields){
+    res.locals.pool.query(`SELECT * FROM course_evaluation WHERE user_comic_id = ?`, results[i].user_comic_id, function(error, result, fields){
 
       if(error){
         callback(error, null);
