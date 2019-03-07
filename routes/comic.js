@@ -93,6 +93,15 @@ router.put('/', function(req, res, next){
 
                 let lastUpdate = new Date();
                 let update = '';
+                let status = result[0].status;
+
+                if(typeof req.body.status != 'undefined'){
+                  if(req.body.status == "True"){
+                    status = true;
+                  }else{
+                    status = false;
+                  }
+                }
 
                 update += " last_update = " + res.locals.pool.escape(lastUpdate);
                 update += ", title = " + (typeof req.body.title != 'undefined' ? res.locals.pool.escape(req.body.title) : result[0].title);
@@ -100,7 +109,7 @@ router.put('/', function(req, res, next){
                 update += ", file = " + (typeof req.body.file != 'undefined' ? res.locals.pool.escape(req.body.file) : result[0].file);
                 update += ", course_id = " + (typeof req.body.course_id != 'undefined' && req.body.course_id > 0 ? res.locals.pool.escape(req.body.course_id) : result[0].course_id);
                 update += ", in_gallery = " + (typeof req.body.in_gallery != 'undefined' ? res.locals.pool.escape(req.body.in_gallery) : result[0].in_gallery);
-                update += ", status = " + (typeof req.body.status != 'undefined' ? res.locals.pool.escape(req.body.status) : result[0].status);
+                update += ", status = " + status;
 
                 res.locals.pool.query('UPDATE user_comic SET ' + update + ' WHERE id = ' + req.body.comic_id, function(error, result){
 
