@@ -40,7 +40,7 @@ var getCourseEvaluations = function(results, res, callback){
       if(error){
         callback(error, null);
       }else{
-        results[i].evaluation = result;
+        results[i].evaluation = result[0];
         if(i + 1 == results.length){
           callback(null, results);
         }

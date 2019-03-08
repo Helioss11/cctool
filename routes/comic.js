@@ -14,6 +14,27 @@ var storage = multer.diskStorage({
   
 var upload = multer({storage: storage});
 
+router.post('/uploadthumbnail', upload.single('jpg'), (req, res, next) => {
+  if(typeof req.body != 'undefined' && typeof req.body.user_comic_id != 'undefined'){
+
+    let comicData = {
+      user_comic_id: req.body.user_comic_id,
+      thumbUri: 'thumbnails/' + req.file.filename
+    }
+
+    res.locals.pool.query(`UPDATE user_comic SET thumbnail = '${comicData.thumbUri}' WHERE id = ${comicData.user_comic_id}`, function(error, result){
+      if(error){
+        res.json({"status": 500, "error": error, "response": null});
+      }else{
+        result.comicData = comicData;
+        result.fileData = req.file;
+        res.json({"status": 200, "error": null, "response": result});
+      }
+    });
+
+  }
+});
+
 router.post('/uploadpdf', upload.single('pdf'), (req, res, next) => {
   if(typeof req.body != "undefined" && typeof req.body.user_comic_id != "undefined"){
 
