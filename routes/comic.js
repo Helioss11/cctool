@@ -19,7 +19,7 @@ router.post('/uploadthumbnail', upload.single('jpg'), (req, res, next) => {
 
     let comicData = {
       user_comic_id: req.body.user_comic_id,
-      thumbUri: 'thumbnails/' + req.file.filename
+      thumbUri: 'comics/' + req.file.filename
     }
 
     res.locals.pool.query(`UPDATE user_comic SET thumbnail = '${comicData.thumbUri}' WHERE id = ${comicData.user_comic_id}`, function(error, result){
