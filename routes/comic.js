@@ -102,7 +102,7 @@ router.post('/gallery', function(req, res, next){
 
   res.locals.pool.query(`select uc.id user_comic_id, uc.user_id, uu.username, uu.gender, uu.country_id, cc.country,
   uc.title comic_title, uc.file, IFNULL(uc.thumbnail, '') thumbnail, uc.course_id, IFNULL(co.name, '') course_name, 
-  IFNULL(co.pin, '') course_pin, uc.register_at, uu.last_update
+  IFNULL(co.pin, '') course_pin, uc.in_gallery, uc.register_at, uu.last_update
   from user_comic uc
   inner join users uu on uc.user_id = uu.id
   inner join lu_contry_types cc on uu.country_id = cc.id
