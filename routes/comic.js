@@ -60,7 +60,7 @@ router.post('/uploadpdf', upload.single('pdf'), (req, res, next) => {
 
 router.get('/', function(req, res, next){
 
-  res.locals.pool.query(`SELECT id, user_id, title, code, file, course_id, in_gallery, status, register_at, last_update 
+  res.locals.pool.query(`SELECT id, user_id, title, code, file, thumbnail, course_id, in_gallery, status, register_at, last_update 
   FROM user_comic WHERE status = true`, function(error, result, fields){
     if(error){
       res.json({"status": 500, "error": error, "response": null});
@@ -73,8 +73,35 @@ router.get('/', function(req, res, next){
 
 router.get('/gallery', function(req, res, next){
 
-  res.locals.pool.query(`SELECT id, user_id, title, code, file, course_id, in_gallery, status, register_at, last_update 
-  FROM user_comic WHERE in_gallery = true AND status = true`, function(error, result, fields){
+  res.locals.pool.query(`SELECT id, user_id, title, code, file, thumbnail, course_id, in_gallery, status, register_at, last_update 
+  FROM user_comic 
+  WHERE in_gallery = true 
+  AND status = true`, function(error, result, fields){
+    if(error){
+      res.json({"status": 500, "error": error, "response": null});
+    }else{
+      res.json({"status": 200, "error": null, "response": result});
+    }
+  });
+
+});
+
+router.post('/gallery', function(req, res, next){
+
+  let ands = ' AND uc.status = true ';
+
+  if(typeof req.body != 'undefined'){
+    ands += typeof req.body.username != 'undefined' ? ` AND uu.username LIKE '%${req.body.username}%' ` : '';
+  }
+
+  res.locals.pool.query(`select uc.id user_comic_id, uc.user_id, uu.username, uu.gender, uu.country_id, cc.country,
+  uc.title, uc.file, IFNULL(uc.thumbnail, '') thumbnail, uc.course_id, IFNULL(co.name, '') course_name, 
+  IFNULL(co.pin, '') course_pin, uc.register_at, uu.last_update
+  from user_comic uc
+  inner join users uu on uc.user_id = uu.id
+  inner join lu_contry_types cc on uu.country_id = cc.id
+  left join course co on uc.course_id = co.id
+  where uc.in_gallery = true ${ands}`, function(error, result, fields){
     if(error){
       res.json({"status": 500, "error": error, "response": null});
     }else{
@@ -86,7 +113,7 @@ router.get('/gallery', function(req, res, next){
 
 router.get('/:id', function(req, res, next){
 
-  res.locals.pool.query(`SELECT id, user_id, title, code, file, course_id, in_gallery, status, register_at, last_update 
+  res.locals.pool.query(`SELECT id, user_id, title, code, file, thumbnail, course_id, in_gallery, status, register_at, last_update 
   FROM user_comic WHERE id = ? AND status = true`, req.params.id, function(error, result, fields){
     if(error){
       res.json({"status": 500, "error": error, "response": null});
