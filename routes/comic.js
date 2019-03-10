@@ -88,7 +88,7 @@ router.get('/gallery', function(req, res, next){
 
 router.post('/gallery', function(req, res, next){
 
-  let ands = ' AND uc.status = true ';
+  let ands = ' uc.status = true ';
 
   if(typeof req.body != 'undefined'){
     ands += typeof req.body.username != 'undefined' ? ` AND uu.username LIKE '%${req.body.username}%' ` : '';
@@ -97,6 +97,7 @@ router.post('/gallery', function(req, res, next){
     ands += typeof req.body.comic_title != 'undefined' ? ` AND uc.title LIKE '%${req.body.comic_title}%' ` : '';
     ands += typeof req.body.course_name != 'undefined' ? ` AND co.name LIKE '%${req.body.course_name}%' ` : '';
     ands += typeof req.body.course_pin != 'undefined' ? ` AND co.pin = '${req.body.course_pin}' ` : '';
+    ands += typeof req.body.in_gallery != 'undefined' ? ` uc.in_gallery = ${req.body.in_gallery} ` : '';
   }
 
   res.locals.pool.query(`select uc.id user_comic_id, uc.user_id, uu.username, uu.gender, uu.country_id, cc.country,
@@ -106,7 +107,7 @@ router.post('/gallery', function(req, res, next){
   inner join users uu on uc.user_id = uu.id
   inner join lu_contry_types cc on uu.country_id = cc.id
   left join course co on uc.course_id = co.id
-  where uc.in_gallery = true ${ands}`, function(error, result, fields){
+  WHERE ${ands}`, function(error, result, fields){
     if(error){
       res.json({"status": 500, "error": error, "response": null});
     }else{
