@@ -92,6 +92,10 @@ router.post('/gallery', function(req, res, next){
 
   if(typeof req.body != 'undefined'){
     ands += typeof req.body.username != 'undefined' ? ` AND uu.username LIKE '%${req.body.username}%' ` : '';
+    ands += typeof req.body.gender != 'undefined' ? ` AND uu.gender = '${req.body.gender}' ` : '';
+    ands += typeof req.body.country != 'undefined' ? ` AND cc.country LIKE '%${req.body.country}%' ` : '';
+    ands += typeof req.body.title != 'undefined' ? ` AND uc.title LIKE '%${req.body.title}%' ` : '';
+    ands += typeof req.body.course_name != 'undefined' ? ` AND co.name LIKE '%${req.body.course_name}%' ` : '';
   }
 
   res.locals.pool.query(`select uc.id user_comic_id, uc.user_id, uu.username, uu.gender, uu.country_id, cc.country,
