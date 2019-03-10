@@ -96,6 +96,7 @@ router.post('/gallery', function(req, res, next){
     ands += typeof req.body.country != 'undefined' ? ` AND cc.country LIKE '%${req.body.country}%' ` : '';
     ands += typeof req.body.comic_title != 'undefined' ? ` AND uc.title LIKE '%${req.body.comic_title}%' ` : '';
     ands += typeof req.body.course_name != 'undefined' ? ` AND co.name LIKE '%${req.body.course_name}%' ` : '';
+    ands += typeof req.body.course_pin != 'undefined' ? ` AND co.pin = '${req.body.course_pin}' ` : '';
   }
 
   res.locals.pool.query(`select uc.id user_comic_id, uc.user_id, uu.username, uu.gender, uu.country_id, cc.country,
@@ -109,7 +110,11 @@ router.post('/gallery', function(req, res, next){
     if(error){
       res.json({"status": 500, "error": error, "response": null});
     }else{
-      res.json({"status": 200, "error": null, "response": result});
+      if(result.length > 0){
+        res.json({"status": 200, "error": null, "response": result});
+      }else{
+        res.json({"status": 200, "error": "No se encuentra información con los parámetros de búsqueda", "response": result});
+      }
     }
   });
 
