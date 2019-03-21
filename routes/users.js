@@ -89,7 +89,16 @@ router.post('/recover/test', function(req, res, next){
         res.json({"status": 500, "error": error, "response": null});
       }else{
         if(result.length > 0){
+
+          let token = JWToken.createJWToken({
+            userId: result[0].userId,
+            sessionData: { "username": result[0].username },
+            maxAge: 43200
+          }, req, res);
+          
+          result[0].tokenData = token;
           res.json({"status": 200, "error": null, "response": result[0]});
+          
         }else{
           res.json({"status": 200, "error": null, "response": {}});
         }
