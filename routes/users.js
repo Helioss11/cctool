@@ -242,14 +242,14 @@ router.put('/:id', function(req, res, next){
       let update = '';
 
       update += " last_update = " + res.locals.pool.escape(lastUpdate)
-      update += ", name = " +       (typeof req.body.name != 'undefined' ?       res.locals.pool.escape(req.body.name) :       results[0].name);
-      update += ", lastname = " +   (typeof req.body.lastname != 'undefined' ?   res.locals.pool.escape(req.body.lastname) :   results[0].lastname);
-      update += ", gender = " +     (typeof req.body.gender != 'undefined' ?     res.locals.pool.escape(req.body.gender) :     results[0].gender);
-      update += ", age = " +        (typeof req.body.age != 'undefined' ?        res.locals.pool.escape(req.body.age) :        results[0].age);
-      update += ", country_id = " + (typeof req.body.country_id != 'undefined' ? res.locals.pool.escape(req.body.country_id) : results[0].country_id);
-      update += ", zorb = " +       (typeof req.body.zorb != 'undefined' ?       res.locals.pool.escape(req.body.zorb) :       results[0].zorb);
-      update += ", color = " +      (typeof req.body.color != 'undefined' ?      res.locals.pool.escape(req.body.color) :      results[0].color);
-      update += ", rol_id = " +     (typeof req.body.rol_id != 'undefined' ?     res.locals.pool.escape(req.body.rol_id) :     results[0].rol_id);
+      update += ", name = " +       (typeof req.body.name != 'undefined' ?       res.locals.pool.escape(req.body.name) :       res.locals.pool.escape(results[0].name));
+      update += ", lastname = " +   (typeof req.body.lastname != 'undefined' ?   res.locals.pool.escape(req.body.lastname) :   res.locals.pool.escape(results[0].lastname));
+      update += ", gender = " +     (typeof req.body.gender != 'undefined' ?     res.locals.pool.escape(req.body.gender) :     res.locals.pool.escape(results[0].gender));
+      update += ", age = " +        (typeof req.body.age != 'undefined' ?        res.locals.pool.escape(req.body.age) :        res.locals.pool.escape(results[0].age));
+      update += ", country_id = " + (typeof req.body.country_id != 'undefined' ? res.locals.pool.escape(req.body.country_id) : res.locals.pool.escape(results[0].country_id));
+      update += ", zorb = " +       (typeof req.body.zorb != 'undefined' ?       res.locals.pool.escape(req.body.zorb) :       res.locals.pool.escape(results[0].zorb));
+      update += ", color = " +      (typeof req.body.color != 'undefined' ?      res.locals.pool.escape(req.body.color) :      res.locals.pool.escape(results[0].color));
+      update += ", rol_id = " +     (typeof req.body.rol_id != 'undefined' ?     res.locals.pool.escape(req.body.rol_id) :     res.locals.pool.escape(results[0].rol_id));
 
       res.locals.pool.query('UPDATE users SET ' + update + ' WHERE id = ' + req.params.id, function(error, result){
 

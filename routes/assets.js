@@ -74,8 +74,8 @@ router.put('/:id', function(req, res, next){
       let update = '';
 
       update += " last_update = " + res.locals.pool.escape(lastUpdate)
-      update += ", status = " + (typeof req.body.status != 'undefined' ? res.locals.pool.escape(req.body.status) : results[0].status);
-      update += ", category_id = " + (typeof req.body.category_id != 'undefined' ? res.locals.pool.escape(req.body.category_id) : results[0].category_id);
+      update += ", status = " + (typeof req.body.status != 'undefined' ? res.locals.pool.escape(req.body.status) : res.locals.pool.escape(results[0].status));
+      update += ", category_id = " + (typeof req.body.category_id != 'undefined' ? res.locals.pool.escape(req.body.category_id) : res.locals.pool.escape(results[0].category_id));
 
       res.locals.pool.query('UPDATE asset SET ' + update + ' WHERE id = ' + req.params.id, function(error, result){
 

@@ -172,9 +172,9 @@ router.put('/evaluation/:id', function(req, res, next){
           let update = '';
 
           update += " last_update = " + res.locals.pool.escape(lastUpdate);
-          update += ", icon = " + (typeof req.body.icon != 'undefined' ? res.locals.pool.escape(req.body.icon) : result[0].icon);
-          update += ", comments = " + (typeof req.body.comments != 'undefined' ? res.locals.pool.escape(req.body.comments) : result[0].comments);
-          update += ", stars = " + (typeof req.body.stars != 'undefined' ? res.locals.pool.escape(req.body.stars) : result[0].stars);
+          update += ", icon = " + (typeof req.body.icon != 'undefined' ? res.locals.pool.escape(req.body.icon) : res.locals.pool.escape(result[0].icon));
+          update += ", comments = " + (typeof req.body.comments != 'undefined' ? res.locals.pool.escape(req.body.comments) : res.locals.pool.escape(result[0].comments));
+          update += ", stars = " + (typeof req.body.stars != 'undefined' ? res.locals.pool.escape(req.body.stars) : res.locals.pool.escape(result[0].stars));
 
           res.locals.pool.query('UPDATE course_evaluation SET ' + update + ' WHERE id = ' + req.body.course_evaluation_id, function(error, result){
 
