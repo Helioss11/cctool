@@ -14,6 +14,25 @@ var storage = multer.diskStorage({
   
 var upload = multer({storage: storage});
 
+var getCourseEvaluations = function(results, res, callback){
+
+  for(let i=0; i<results.length; i++){
+    res.locals.pool.query(`SELECT * FROM course_evaluation WHERE user_comic_id = ?`, results[i].user_comic_id, function(error, result, fields){
+
+      if(error){
+        callback(error, null);
+      }else{
+        results[i].evaluation = result[0];
+        if(i + 1 == results.length){
+          callback(null, results);
+        }
+      }
+  
+    });
+  }
+
+};
+
 router.post('/uploadthumbnail', upload.single('jpg'), (req, res, next) => {
   if(typeof req.body != 'undefined' && typeof req.body.user_comic_id != 'undefined'){
 
@@ -107,12 +126,18 @@ router.post('/gallery', function(req, res, next){
   inner join users uu on uc.user_id = uu.id
   inner join lu_contry_types cc on uu.country_id = cc.id
   left join course co on uc.course_id = co.id
-  WHERE ${ands}`, function(error, result, fields){
+  WHERE ${ands}`, function(error, results, fields){
     if(error){
       res.json({"status": 500, "error": error, "response": null});
     }else{
-      if(result.length > 0){
-        res.json({"status": 200, "error": null, "response": result});
+      if(results.length > 0){
+        getCourseEvaluations(results, res, function(error, result){
+          if(!error){
+            res.json({"status": 200, "error": null, "response": result});
+          }else{
+            res.json({"status": 500, "error": error, "response": null});
+          }
+        });
       }else{
         res.json({"status": 200, "error": "No se encuentra información con los parámetros de búsqueda", "response": result});
       }
