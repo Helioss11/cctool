@@ -312,6 +312,8 @@ router.post('/sessiontime', function(req, res, next){
             }
           });
 
+          res.json({"status": 200, "error": null, "response": result});
+
         }
       });
 
