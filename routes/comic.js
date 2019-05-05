@@ -131,7 +131,7 @@ router.post('/gallery', function(req, res, next){
   inner join users uu on uc.user_id = uu.id
   inner join lu_contry_types cc on uu.country_id = cc.id
   left join course co on uc.course_id = co.id
-  WHERE ${ands}`, function(error, results, fields){
+  WHERE ${ands} ${limit}`, function(error, results, fields){
     if(error){
       res.json({"status": 500, "error": error, "response": null});
     }else{
