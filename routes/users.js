@@ -12,7 +12,7 @@ encryptPassword.pattern = /^\w{4,24}$/;
 var getUser = function(id, res, callback){
 
   res.locals.pool.query(`SELECT uu.id userId, uu.name, uu.lastname, uu.email, uu.username, 
-  uu.gender, uu.age, uu.country_id, cc.country, uu.zorb, 
+  uu.gender, uu.age, uu.tutorial, uu.country_id, cc.country, uu.zorb, 
   uu.rol_id, rr.rol, uu.status, uu.register_at, uu.last_update 
   FROM users uu 
   INNER JOIN lu_contry_types cc on uu.country_id = cc.id
@@ -250,6 +250,7 @@ router.put('/:id', function(req, res, next){
       update += ", zorb = " +       (typeof req.body.zorb != 'undefined' ?       res.locals.pool.escape(req.body.zorb) :       res.locals.pool.escape(results[0].zorb));
       update += ", color = " +      (typeof req.body.color != 'undefined' ?      res.locals.pool.escape(req.body.color) :      res.locals.pool.escape(results[0].color));
       update += ", rol_id = " +     (typeof req.body.rol_id != 'undefined' ?     res.locals.pool.escape(req.body.rol_id) :     res.locals.pool.escape(results[0].rol_id));
+      update += ", tutorial = " +   (typeof req.body.tutorial != 'undefined' ?   res.locals.pool.escape(req.body.tutorial) :   res.locals.pool.escape(results[0].tutorial));
 
       res.locals.pool.query('UPDATE users SET ' + update + ' WHERE id = ' + req.params.id, function(error, result){
 
