@@ -268,6 +268,55 @@ router.put('/:id', function(req, res, next){
 
 });
 
+router.post('/sessiontime', function(req, res, next){
+
+  getUser(req.body.user_id, res, function(error, results){
+
+    if(error){
+      res.json({"status": 500, "error": error, "response": "user not exists"});
+    }else{
+
+      res.locals.pool.query('INSERT INTO user_sessions SET ?', req.body, function(error, result){
+        if(error){
+          res.json({"status": 500, "error": error, "response": null});
+        }else{
+
+          res.locals.pool.query(`SELECT IFNULL(TIMESTAMPDIFF(MINUTE, (select max(ls.date_created) from users_log_session ls where ls.user_id = '${req.body.user_id}'), NOW()), 61) minutos`, function(error, results, fields){
+            if(error){
+              res.json({"status": 500, "error": error, "response": null});
+            }else{
+              if(results.length > 0){
+                
+                if(results[0].minutos > 60){
+                  let data = {
+                    user_id: req.body.user_id,
+                    remote_address: req.headers['x-forwarded-for'] || req.connection.remoteAddress,
+                    user_agent: req.get('User-Agent') || ''
+                  }
+                  res.locals.pool.query('INSERT INTO users_log_session SET ?', data, function(error, result){
+                    if(error){
+                      res.json({"status": 500, "error": error, "response": null});
+                    }else{
+                      res.json({"status": 200, "error": null, "response": result});
+                    }
+                  });
+                }
+
+              }else{
+                res.json({"status": 200, "error": null, "response": result});
+              }
+            }
+          });
+
+        }
+      });
+
+    }
+
+  });
+
+});
+
 router.get('/comics/:id', function(req, res, next){
 
   let ands = '';
