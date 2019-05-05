@@ -276,7 +276,11 @@ router.post('/sessiontime', function(req, res, next){
       res.json({"status": 500, "error": error, "response": "user not exists"});
     }else{
 
-      res.locals.pool.query('INSERT INTO user_sessions SET ?', req.body, function(error, result){
+      let session = {
+        user_id: req.body.user_id,
+        session_time: req.body.session_time
+      }
+      res.locals.pool.query('INSERT INTO user_sessions SET ?', session, function(error, result){
         if(error){
           res.json({"status": 500, "error": error, "response": null});
         }else{
