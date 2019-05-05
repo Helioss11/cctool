@@ -108,6 +108,7 @@ router.get('/gallery', function(req, res, next){
 router.post('/gallery', function(req, res, next){
 
   let ands = ' uc.status = true ';
+  let limit = ' LIMIT 10 ';
 
   if(typeof req.body != 'undefined'){
     ands += typeof req.body.username != 'undefined' ? ` AND uu.username LIKE '%${req.body.username}%' ` : '';
@@ -117,9 +118,13 @@ router.post('/gallery', function(req, res, next){
     ands += typeof req.body.course_name != 'undefined' ? ` AND co.name LIKE '%${req.body.course_name}%' ` : '';
     ands += typeof req.body.course_pin != 'undefined' ? ` AND co.pin = '${req.body.course_pin}' ` : '';
     ands += typeof req.body.in_gallery != 'undefined' ? ` AND uc.in_gallery = ${req.body.in_gallery} ` : '';
+
+    ands += typeof req.body.starts != 'undefined' ? ` AND uc.id > ${req.body.starts} ` : '';
+    limit = typeof req.body.limit != 'undefined' ? ` LIMIT ${req.body.limit} ` : limit;
+
   }
 
-  res.locals.pool.query(`select uc.id user_comic_id, uc.user_id, uu.username, uu.gender, uu.country_id, cc.country,
+  res.locals.pool.query(`select (select count(uc2.id) from user_comic uc2) resultados, uc.id user_comic_id, uc.user_id, uu.username, uu.gender, uu.country_id, cc.country,
   uc.title comic_title, uc.file, IFNULL(uc.thumbnail, '') thumbnail, uc.course_id, IFNULL(co.name, '') course_name, 
   IFNULL(co.pin, '') course_pin, uc.in_gallery, uc.code, uc.register_at, uu.last_update
   from user_comic uc
