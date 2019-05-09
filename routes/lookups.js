@@ -4,9 +4,10 @@ var router = express.Router();
 router.get('/country/:lang?', function(req, res, next) {
   
   let select = (req.params.lang && req.params.lang == 'en') ? " country_en country " : " country ";
+  let order = (req.params.lang && req.params.lang == 'en') ? " country_en " : " country ";
 
 
-  res.locals.pool.query(`SELECT id, ${select} FROM lu_contry_types WHERE status = 1 order by country`, function(error, results, fields){
+  res.locals.pool.query(`SELECT id, ${select} FROM lu_contry_types WHERE status = 1 order by ${order}`, function(error, results, fields){
     if(error){
       res.json({"status": 500, "error": error, "response": null});
     }else{
