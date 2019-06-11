@@ -155,6 +155,8 @@ router.post('/', function(req, res, next){
 
     let encPass = encryptPassword(req.body.password.trim().toLowerCase(), req.body.username.trim().toLowerCase());
     req.body.password = encPass;
+
+    req.body.username = req.body.username.trim().toLowerCase();
     
     res.locals.pool.query('INSERT INTO users SET ?', req.body, function(error, result){
       if(error){
