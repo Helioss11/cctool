@@ -100,7 +100,7 @@ router.post('/recover/test', function(req, res, next){
           res.json({"status": 200, "error": null, "response": result[0]});
           
         }else{
-          res.json({"status": 500, "error": null, "response": {}});
+          res.json({"status": 500, "error": "No existe el usuario", "response": {}});
         }
       }
     });
