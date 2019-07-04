@@ -118,6 +118,7 @@ router.post('/gallery', function(req, res, next){
     ands += typeof req.body.course_name != 'undefined' ? ` AND co.name LIKE '%${req.body.course_name}%' ` : '';
     ands += typeof req.body.course_pin != 'undefined' ? ` AND co.pin = '${req.body.course_pin}' ` : '';
     ands += typeof req.body.in_gallery != 'undefined' ? ` AND uc.in_gallery = ${req.body.in_gallery} ` : '';
+    ands += typeof req.body.favorite != 'undefined' ? ` AND uc.favorite = ${req.body.favorite} ` : '';
 
     ands += typeof req.body.starts != 'undefined' ? ` AND uc.id > ${req.body.starts} ` : '';
     limit = typeof req.body.limit != 'undefined' ? ` LIMIT ${req.body.limit} ` : limit;
