@@ -79,7 +79,7 @@ router.post('/uploadpdf', upload.single('pdf'), (req, res, next) => {
 
 router.get('/', function(req, res, next){
 
-  res.locals.pool.query(`SELECT id, user_id, title, code, file, thumbnail, course_id, in_gallery, status, register_at, last_update 
+  res.locals.pool.query(`SELECT id, user_id, title, code, file, thumbnail, course_id, favorite, in_gallery, status, register_at, last_update 
   FROM user_comic WHERE status = true`, function(error, result, fields){
     if(error){
       res.json({"status": 500, "error": error, "response": null});
@@ -92,7 +92,7 @@ router.get('/', function(req, res, next){
 
 router.get('/gallery', function(req, res, next){
 
-  res.locals.pool.query(`SELECT id, user_id, title, code, file, thumbnail, course_id, in_gallery, status, register_at, last_update 
+  res.locals.pool.query(`SELECT id, user_id, title, code, file, thumbnail, course_id, favorite, in_gallery, status, register_at, last_update 
   FROM user_comic 
   WHERE in_gallery = true 
   AND status = true`, function(error, result, fields){
@@ -126,7 +126,7 @@ router.post('/gallery', function(req, res, next){
 
   res.locals.pool.query(`select (select count(uc2.id) from user_comic uc2) resultados, uc.id user_comic_id, uc.user_id, uu.username, uu.gender, uu.country_id, cc.country,
   uc.title comic_title, uc.file, IFNULL(uc.thumbnail, '') thumbnail, uc.course_id, IFNULL(co.name, '') course_name, 
-  IFNULL(co.pin, '') course_pin, uc.in_gallery, uc.code, uc.register_at, uu.last_update
+  IFNULL(co.pin, '') course_pin, uc.favorite, uc.in_gallery, uc.code, uc.register_at, uu.last_update
   from user_comic uc
   inner join users uu on uc.user_id = uu.id
   inner join lu_contry_types cc on uu.country_id = cc.id
@@ -153,7 +153,7 @@ router.post('/gallery', function(req, res, next){
 
 router.get('/:id', function(req, res, next){
 
-  res.locals.pool.query(`SELECT id, user_id, title, code, file, thumbnail, course_id, in_gallery, status, register_at, last_update 
+  res.locals.pool.query(`SELECT id, user_id, title, code, file, thumbnail, course_id, favorite, in_gallery, status, register_at, last_update 
   FROM user_comic WHERE id = ? AND status = true`, req.params.id, function(error, result, fields){
     if(error){
       res.json({"status": 500, "error": error, "response": null});
@@ -197,6 +197,7 @@ router.put('/', function(req, res, next){
                 update += ", file = " + (typeof req.body.file != 'undefined' ? res.locals.pool.escape(req.body.file) : res.locals.pool.escape(result[0].file));
                 update += ", course_id = " + (typeof req.body.course_id != 'undefined' && req.body.course_id > 0 ? res.locals.pool.escape(req.body.course_id) : res.locals.pool.escape(result[0].course_id));
                 update += ", in_gallery = " + (typeof req.body.in_gallery != 'undefined' ? res.locals.pool.escape(req.body.in_gallery) : res.locals.pool.escape(result[0].in_gallery));
+                update += ", favorite = " + (typeof req.body.favorite != 'undefined' ? res.locals.pool.escape(req.body.favorite) : res.locals.pool.escape(result[0].favorite));
                 update += ", status = " + status;
 
                 res.locals.pool.query('UPDATE user_comic SET ' + update + ' WHERE id = ' + req.body.comic_id, function(error, result){

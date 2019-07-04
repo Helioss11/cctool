@@ -330,7 +330,8 @@ router.get('/comics/:id', function(req, res, next){
   let ands = '';
   ands += (typeof req.query.course != 'undefined' && req.query.course == 1) ? " AND course_id IS NOT NULL " : "";
 
-  res.locals.pool.query(`SELECT uc.id user_comic_id, uc.user_id, uc.title, uc.code, uc.file, uc.thumbnail, uc.course_id, cc.pin, uc.in_gallery, uc.status, uc.register_at, uc.last_update 
+  res.locals.pool.query(`SELECT uc.id user_comic_id, uc.user_id, uc.title, uc.code, uc.file, uc.thumbnail, uc.course_id, cc.pin, uc.favorite, uc.in_gallery, 
+  uc.status, uc.register_at, uc.last_update 
   FROM user_comic uc
   LEFT JOIN course cc ON uc.course_id = cc.id
   WHERE uc.user_id = ? ${ands} AND uc.status = true`, req.params.id, function(error, results, fields){
@@ -381,6 +382,7 @@ router.get('/pines/:id', function(req, res, next){
 router.post('/comic', function(req, res, next){
 
   if(typeof req.body != 'undefined' && typeof req.body.user_id != 'undefined'){
+    
     res.locals.pool.query(`SELECT id FROM user_comic WHERE user_id = '${req.body.user_id}' AND title = '${req.body.title}' AND status = true`, function(error, result, fields){
       if(result.length === 0){
 
