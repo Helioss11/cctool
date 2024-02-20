@@ -76,4 +76,9 @@ app.use(function (err, req, res, next) {
   res.render("error");
 });
 
+// log app is running on port
+app.listen(app.get("port"), () => {
+  console.log(`App running on port ${app.get("port")}`);
+});
+
 module.exports = app;
