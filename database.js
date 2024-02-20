@@ -2,9 +2,9 @@ var mysql = require('mysql');
 
 var pool = mysql.createPool({
     connectionLimit: 10,
-    host: 'localhost',
-    user: 'root',
-    password: '',
+    host: 'rds-gargamel-sites-prod.cz90w43ecjvi.us-east-2.rds.amazonaws.com',
+    user: 'admin',
+    password: 'tgF9bwFS776CVCqWXnuv',
     database: 'cctool_db',
     insecureAuth: true
 });
